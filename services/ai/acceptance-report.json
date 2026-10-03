@@ -1,0 +1,170 @@
+{
+    "checkedOn":  "2026-10-04",
+    "overallStatus":  "WINDOWS_LOCAL_PIPELINE_PASS_OFFLINE_BLOCKED",
+    "qualityLimitations":  [
+                               "Pipeline/schema/credit acceptance does not prove full editorial accuracy for every topic.",
+                               "Duration is now a soft editorial target. Narration is not padded, truncated or rejected based on spoken unit count. Backend estimates from actual text; TTS audio duration remains authoritative. Plan/scene/character/quota limits remain enforced.",
+                               "Curated source context currently covers numbered civilization/Kardashev questions only; other topics are not automatically fact-checked.",
+                               "Long 5-10 minute outputs are not verified; local output remains capped at 4096 tokens."
+                           ],
+    "model":  "google/gemma-4-E4B-it-qat-q4_0-gguf",
+    "revision":  "4b4a2c1d584be7264f87aac328a1bc739ce81b6c",
+    "runtime":  "llama.cpp b11379 Windows x64 CUDA 12.4",
+    "modelAndProjectorBytes":  6146493536,
+    "runtimeZipBytes":  655238192,
+    "extractedRuntimeBytes":  1192494877,
+    "checks":  {
+                   "provisionAndChecksums":  "PASS",
+                   "backendBuild":  "PASS",
+                   "backendTypecheck":  "PASS",
+                   "lint":  "PASS_WITH_EXISTING_WARNINGS",
+                   "contentTimingVideoTests":  {
+                                                   "status":  "PASS",
+                                                   "tests":  38
+                                               },
+                   "adapterHttpJobCreditTests":  {
+                                                     "status":  "PASS",
+                                                     "tests":  12,
+                                                     "inference":  "HTTP_FIXTURE_NOT_REAL_MODEL"
+                                                 },
+                   "plansTests":  {
+                                      "status":  "PASS",
+                                      "tests":  55
+                                  },
+                   "projectsTests":  {
+                                         "status":  "PASS",
+                                         "tests":  16
+                                     },
+                   "adminControlTests":  {
+                                             "status":  "PASS",
+                                             "tests":  11
+                                         },
+                   "ttsVoiceCachePricingTests":  {
+                                                     "status":  "PASS",
+                                                     "tests":  42
+                                                 },
+                   "windowsRuntimeExecution":  "PASS",
+                   "realVietnameseContentAndPrompts":  "PASS",
+                   "realVision":  "PASS",
+                   "realApiWorkerModelCreditAcceptance":  "PASS",
+                   "cudaOffloadMeasurement":  "GPU_MEMORY_IN_USE_LAYER_COUNT_NOT_CAPTURED",
+                   "offlineRestartAndInference":  "BLOCKED_REQUIRES_ADMINISTRATOR_POWERSHELL",
+                   "linuxProduction":  "NOT_TESTED"
+               },
+    "modelMeasurements":  {
+                              "text":  {
+                                           "coldStartMs":  46474,
+                                           "timeToFirstTokenMs":  774.4034999999999,
+                                           "totalMs":  3032.4150000000004,
+                                           "tokensPerSecond":  39.858078667889856,
+                                           "peakRuntimeRssMiB":  3637.62109375,
+                                           "peakVramMiB":  2945,
+                                           "peakSystemUsedMiB":  15180.5234375,
+                                           "memorySamplingIntervalMs":  2000
+                                       },
+                              "image":  {
+                                            "coldStartMs":  46474,
+                                            "timeToFirstTokenMs":  975.3261,
+                                            "totalMs":  3007.552,
+                                            "tokensPerSecond":  36.41327472501949,
+                                            "peakRuntimeRssMiB":  3838.14453125,
+                                            "peakVramMiB":  2955,
+                                            "peakSystemUsedMiB":  14930.73828125,
+                                            "memorySamplingIntervalMs":  2000
+                                        },
+                              "runtimeReportedTextGenerationTokensPerSecond":  48.93785607101598,
+                              "offloadedLayers":  null,
+                              "note":  "Cold start includes process initialization; peak memory sampled during inference every 2 seconds, not across the entire model load. VRAM is total GPU usage, system memory includes other applications. Exact GPU layer count not captured."
+                          },
+    "checkedAt":  "2026-10-03T18:52:17.0843649Z",
+    "realAcceptanceChecks":  [
+                                 {
+                                     "name":  "Vietnamese-script",
+                                     "status":  "PASS",
+                                     "totalMs":  21187.8055
+                                 },
+                                 {
+                                     "name":  "image-video-prompts",
+                                     "status":  "PASS",
+                                     "totalMs":  19799.458199999997
+                                 },
+                                 {
+                                     "name":  "faithful-scene-split",
+                                     "status":  "PASS",
+                                     "totalMs":  15120.231500000002
+                                 },
+                                 {
+                                     "name":  "owned-image-script",
+                                     "status":  "PASS",
+                                     "totalMs":  18364.955700000006
+                                 },
+                                 {
+                                     "name":  "real-runtime-auth-failure-refund",
+                                     "status":  "PASS"
+                                 }
+                             ],
+    "activation":  {
+                       "checkedAt":  "2026-10-03T18:50:54.206Z",
+                       "provider":  "local",
+                       "http":  [
+                                    {
+                                        "service":  "client",
+                                        "status":  200
+                                    },
+                                    {
+                                        "service":  "admin",
+                                        "status":  200
+                                    },
+                                    {
+                                        "service":  "API",
+                                        "status":  200
+                                    },
+                                    {
+                                        "service":  "admin-proxy",
+                                        "status":  200
+                                    },
+                                    {
+                                        "service":  "TTS",
+                                        "status":  200
+                                    },
+                                    {
+                                        "service":  "socket",
+                                        "status":  200
+                                    }
+                                ],
+                       "pendingJobs":  0,
+                       "pendingAdminVoiceJobs":  0,
+                       "ttsWorkerHeartbeatFresh":  true
+                   },
+    "previousBlock":  {
+                          "reason":  "Windows Application Control blocked the verified executable on the previous attempt. It executed successfully on retry; no security policy was changed by this task."
+                      },
+    "softDurationFix": {
+      "checkedOn": "2026-10-04",
+      "status": "PASS",
+      "scope": "Real Gemma content generation and runtime-auth-failure refund in an isolated database; prompt/split/vision excluded from this rerun.",
+      "targetSeconds": 60,
+      "narrationUnits": 244,
+      "estimatedSeconds": 61.1,
+      "scenesCount": 5,
+      "generationMs": 26866,
+      "automatedTestsPassed": 104,
+      "backendBuild": "PASS",
+      "frontendScopedTypecheckAndBundle": "PASS",
+      "frontendFullBuild": "BLOCKED_BY_EXISTING_UNUSED_SETMENUOPEN_IN_LOGINPAGE",
+      "frontendFullLint": "EXISTING_RULES_OF_HOOKS_ERRORS_IN_LANDINGPAGE"
+    },
+    "contentSettingsFix":  {
+                               "status":  "PASS",
+                               "scope":  "Content generation and real-runtime auth failure refund only; prompt/split/vision excluded.",
+                               "topic":  "Nền văn minh cấp 7 là gì?",
+                               "audience":  "Gen Z, thích hài hước",
+                               "tone":  "funny",
+                               "requestedDurationSeconds":  60,
+                               "observedNarrationUnits":  283,
+                               "referenceEstimateSeconds":  70.75,
+                               "scenesCount":  5,
+                               "runtimeRefundStatus":  "PASS",
+                               "notes":  "Earlier settings run failed image-generation length checks; the successful rerun intentionally verifies content generation and refund only."
+                           }
+}

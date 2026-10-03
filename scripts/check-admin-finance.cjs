@@ -1,0 +1,5 @@
+// Read-only financial verification. Never prints customer identities or provider secrets.
+const path=require('node:path');const root=path.resolve(__dirname,'..'),backend=path.join(root,'apps/backend-api');
+require(path.join(backend,'node_modules/dotenv')).config({path:path.join(backend,'.env'),quiet:true});
+const mongoose=require(path.join(backend,'node_modules/mongoose'));
+(async()=>{try{await mongoose.connect(process.env.MONGODB_URI);const {adminOrders,payments,cashflow}=require(path.join(backend,'dist/services/AdminFinance'));for(const mode of ['production','sandbox']){const [orders,tx,cash]=await Promise.all([adminOrders({mode}),payments({mode}),cashflow({mode})]);console.log(JSON.stringify({mode,orders:orders.total,paymentResults:tx.total,successfulResults:tx.summary.success,incomeEntriesLast30Days:cash.total,grossReceivedLast30Days:cash.summary.grossReceived,legacyIncomeEntries:cash.summary.legacyRecords}));}}finally{await mongoose.disconnect();}})().catch(()=>{console.error('FINANCE_DIAGNOSTIC_UNAVAILABLE');process.exitCode=1;});

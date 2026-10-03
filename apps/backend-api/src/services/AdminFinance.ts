@@ -1,0 +1,49 @@
+import mongoose from 'mongoose';
+import {BillingOrder} from '../models/BillingOrder';
+import {PaymentReceipt,CashMovement} from '../models/Finance';
+import {CreditLedger} from '../models/Credits';
+import {User} from '../models/User';
+import {BillingError} from './BillingService';
+import {historyFilter,orderHistory} from './BillingHistory';
+
+const objectId=(v:any)=>{if(typeof v!=='string'||!mongoose.isObjectIdOrHexString(v))throw new BillingError('BILLING_INVALID_INPUT');return new mongoose.Types.ObjectId(v);};
+function paging(query:any){const page=Number(query.page||1);if(!Number.isSafeInteger(page)||page<1||page>10000)throw new BillingError('BILLING_INVALID_INPUT');return {page,limit:10,skip:(page-1)*10};}
+async function resolveCustomer(query:any){if(!query.ownerId)return query;if(typeof query.ownerId!=='string'||query.ownerId.length>254)throw new BillingError('BILLING_INVALID_INPUT');if(!query.ownerId.includes('@'))return query;const user=await User.findOne({email:query.ownerId.trim().toLowerCase()}).select('_id').lean();return {...query,ownerId:String(user?._id||'000000000000000000000000')};}
+function range(query:any,field:string,defaultRange=false){const {filter}=historyFilter({from:query.from,to:query.to});if(!defaultRange)return filter.createdAt?{[field]:filter.createdAt}:{};const now=new Date(),bounds=filter.createdAt||{},end=bounds.$lte||now,today=new Date(end.getTime()+7*3600000).toISOString().slice(0,10);return {[field]:{$gte:bounds.$gte||new Date(new Date(today+'T00:00:00+07:00').getTime()-29*86400000),$lte:end}};}
+function financeFilter(query:any,field:string,defaultRange=false){const filter:any=range(query,field,defaultRange);if(query.ownerId)filter.ownerId=objectId(query.ownerId);if(query.orderId)filter.orderId=objectId(query.orderId);if(query.mode){if(!['production','sandbox'].includes(query.mode))throw new BillingError('BILLING_INVALID_INPUT');filter.mode=query.mode;}return filter;}
+function legacyCashFilter(filter:any){return {...(filter.mode?{mode:filter.mode}:{}),...(filter.ownerId?{ownerId:filter.ownerId}:{}),...(filter.orderId?{_id:filter.orderId}:{})};}
+function legacyPaymentFilter(filter:any){return {...legacyCashFilter(filter),...(filter.providerTransactionId?{providerTransactionId:filter.providerTransactionId}:{}),...(filter.confirmedAt?{$or:[{status:'PAID',paidAt:filter.confirmedAt},{status:'FAILED',updatedAt:filter.confirmedAt}]}:{})};}
+const paymentStages=(filter:any={}):any[]=>[
+ {$match:filter},
+ {$project:{_id:1,orderId:1,ownerId:1,provider:1,mode:1,amount:1,currency:1,outcome:1,channel:1,providerTransactionId:1,responseCode:1,transactionStatus:1,bankCode:1,cardType:1,providerPaidAt:1,confirmedAt:1,recordSource:{$literal:'VERIFIED_IPN'}}},
+ {$unionWith:{coll:BillingOrder.collection.name,pipeline:[{$match:{...legacyPaymentFilter(filter),status:filter.outcome?(filter.outcome==='SUCCESS'?'PAID':'FAILED'):{$in:['PAID','FAILED']}}},{$lookup:{from:PaymentReceipt.collection.name,localField:'_id',foreignField:'orderId',as:'receipt'}},{$match:{'receipt.0':{$exists:false}}},{$project:{_id:1,orderId:'$_id',ownerId:1,provider:{$literal:'VNPAY'},mode:1,amount:1,currency:{$literal:'VND'},outcome:{$cond:[{$eq:['$status','PAID']},'SUCCESS','FAILED']},channel:{$cond:[{$ifNull:['$paymentMethodId',false]},'SAVED_CARD','CHECKOUT']},providerTransactionId:1,confirmedAt:{$cond:[{$eq:['$status','PAID']},'$paidAt','$updatedAt']},recordSource:{$literal:'LEGACY_ORDER'}}}]}}
+];
+const cashStages=(filter:any={}):any[]=>[
+ {$match:filter},
+ {$project:{_id:1,orderId:1,paymentId:1,ownerId:1,kind:1,amount:1,currency:1,mode:1,occurredAt:1,tier:1,planName:1,billingCycle:1,recordSource:{$literal:'CASH_LEDGER'}}},
+ {$unionWith:{coll:BillingOrder.collection.name,pipeline:[{$match:{...legacyCashFilter(filter),status:'PAID',paidAt:filter.occurredAt||{$type:'date'}}},{$lookup:{from:CashMovement.collection.name,localField:'_id',foreignField:'orderId',as:'movement'}},{$match:{'movement.0':{$exists:false}}},{$project:{_id:1,orderId:'$_id',ownerId:1,kind:{$literal:'PAYMENT_RECEIVED'},amount:1,currency:{$literal:'VND'},mode:1,occurredAt:'$paidAt',tier:1,planName:{$ifNull:['$planSnapshot.config.overview.name','$tier']},billingCycle:1,recordSource:{$literal:'LEGACY_ORDER'}}}]}}
+];
+async function owners(items:any[]){const users=await User.find({_id:{$in:items.map(r=>r.ownerId)}}).select('email displayName').lean();return items.map(r=>({...r,owner:users.find(u=>String(u._id)===String(r.ownerId))}));}
+export async function adminOrders(query:any){
+ query=await resolveCustomer(query);
+ const {filter}=historyFilter(query);paging(query);const data=await orderHistory({...query,limit:10});const [states,users]=await Promise.all([BillingOrder.aggregate([{$match:filter},{$group:{_id:'$status',count:{$sum:1}}}]),User.find({_id:{$in:data.items.map((r:any)=>r.ownerId)}}).select('billingOrderId').lean()]);
+ const now=new Date();return {...data,summary:{paid:states.find(r=>r._id==='PAID')?.count||0,pending:states.find(r=>r._id==='PENDING')?.count||0,failed:states.find(r=>r._id==='FAILED')?.count||0},items:data.items.map((r:any)=>({...r,selected:users.some((u:any)=>String(u.billingOrderId)===String(r._id)),fulfillment:r.status!=='PAID'?'NOT_ACTIVATED':!r.startsAt||!r.endsAt?'MISSING_PERIOD':r.startsAt>now?'SCHEDULED':r.endsAt<=now?'EXPIRED':'ACTIVE'}))};
+}
+export async function payments(query:any){
+ query=await resolveCustomer(query);
+ const {page,limit,skip}=paging(query),filter=financeFilter(query,'confirmedAt');if(query.outcome){if(!['SUCCESS','FAILED'].includes(query.outcome))throw new BillingError('BILLING_INVALID_INPUT');filter.outcome=query.outcome;}if(query.transactionId){if(typeof query.transactionId!=='string'||!/^[0-9]{1,30}$/.test(query.transactionId))throw new BillingError('BILLING_INVALID_INPUT');filter.providerTransactionId=query.transactionId;}
+ const [data]=await PaymentReceipt.aggregate([...paymentStages(filter),{$match:filter},{$sort:{confirmedAt:-1,_id:-1}},{$facet:{items:[{$skip:skip},{$limit:limit}],total:[{$count:'n'}],summary:[{$group:{_id:'$outcome',count:{$sum:1}}}]}}]);return {items:await owners(data.items),total:data.total[0]?.n||0,page,limit,summary:{success:data.summary.find((r:any)=>r._id==='SUCCESS')?.count||0,failed:data.summary.find((r:any)=>r._id==='FAILED')?.count||0},dateBasis:'PAYMENT_CONFIRMED_AT'};
+}
+export async function cashflow(query:any){
+ query=await resolveCustomer(query);
+ const {page,limit,skip}=paging(query),filter=financeFilter({...query,mode:query.mode||'production'},'occurredAt',true),dates=filter.occurredAt||{};
+ const first=dates.$gte||new Date('2000-01-01'),last=dates.$lte||new Date();if(+last-+first>366*86400000)throw new BillingError('BILLING_DATE_RANGE_TOO_LARGE');const granularity=+last-+first>62*86400000?'MONTH':'DAY';
+ const [data]=await CashMovement.aggregate([...cashStages(filter),{$match:filter},{$sort:{occurredAt:-1,_id:-1}},{$facet:{items:[{$skip:skip},{$limit:limit}],total:[{$count:'n'}],summary:[{$group:{_id:null,grossReceived:{$sum:'$amount'},payments:{$sum:1},legacyRecords:{$sum:{$cond:[{$eq:['$recordSource','LEGACY_ORDER']},1,0]}}}}],series:[{$group:{_id:{$dateToString:{date:'$occurredAt',format:granularity==='DAY'?'%Y-%m-%d':'%Y-%m',timezone:'Asia/Ho_Chi_Minh'}},amount:{$sum:'$amount'},payments:{$sum:1}}},{$sort:{_id:1}}],byPlan:[{$group:{_id:'$tier',name:{$first:'$planName'},amount:{$sum:'$amount'},payments:{$sum:1}}},{$sort:{amount:-1,_id:1}},{$limit:10}]}}]);
+ const summary=data.summary[0]||{grossReceived:0,payments:0,legacyRecords:0};return {items:await owners(data.items),total:data.total[0]?.n||0,page,limit,summary:{...summary,averagePayment:summary.payments?Math.round(summary.grossReceived/summary.payments):0},series:data.series,byPlan:data.byPlan,granularity,mode:filter.mode,dateBasis:'PAYMENT_CONFIRMED_AT',period:{from:dates.$gte,to:dates.$lte},fees:null,refunds:null,bankSettled:null,currency:'VND'};
+}
+export async function orderDetails(orderId:string){
+ const order:any=await BillingOrder.findById(objectId(orderId)).select('ownerId tier billingCycle amount status createdAt paidAt expiresAt mode providerTransactionId startsAt endsAt planSnapshot.revision planSnapshot.config.overview.name planSnapshot.config.credits.monthlyGrant').lean();if(!order)throw new BillingError('BILLING_ORDER_NOT_FOUND',404);
+ const receipt:any=await PaymentReceipt.findOne({orderId:order._id}).lean();const grantFilter={transactionType:'GRANT',referenceId:{$regex:'^billing_'+String(order._id)+'_[0-9]+$'}};
+ const [grants,grantCount,owner]=await Promise.all([CreditLedger.find(grantFilter).select('deltaAvailable createdAt referenceId').sort({createdAt:-1,_id:-1}).limit(10).lean(),CreditLedger.countDocuments(grantFilter),User.findById(order.ownerId).select('email displayName billingOrderId').lean()]);
+ return {order:{...order,planSnapshot:undefined,planName:order.planSnapshot?.config?.overview?.name||order.tier,planRevision:order.planSnapshot?.revision,monthlyCreditGrant:order.planSnapshot?.config?.credits?.monthlyGrant,selected:String(owner?.billingOrderId)===String(order._id)},owner:owner?{displayName:owner.displayName,email:owner.email}:null,payment:receipt?{outcome:receipt.outcome,providerPaidAt:receipt.providerPaidAt,confirmedAt:receipt.confirmedAt,responseCode:receipt.responseCode,transactionStatus:receipt.transactionStatus,bankCode:receipt.bankCode,cardType:receipt.cardType,channel:receipt.channel,providerTransactionId:receipt.providerTransactionId,recordSource:'VERIFIED_IPN'}:null,grants,grantCount};
+}

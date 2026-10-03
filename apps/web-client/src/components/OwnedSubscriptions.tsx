@@ -1,0 +1,13 @@
+import {useEffect,useState} from 'react';
+import {api} from '../api';
+import {useAuth} from '../contexts/AuthContext';
+import {errorMessage} from '../utils/userMessages';
+import toast from 'react-hot-toast';
+export function OwnedSubscriptions(){
+ const [page,setPage]=useState(1);
+ const {refreshUser}=useAuth(),[data,setData]=useState<any>(null),[error,setError]=useState(''),[busy,setBusy]=useState('');
+ const load=async()=>{try{const r=await api.get('/billing/subscriptions',{params:{page,limit:10}});setData(r.data.data);setError('');}catch(e){setError(errorMessage(e));}};
+ useEffect(()=>{void load();const timer=setInterval(()=>void load(),30000);const listener=()=>void load();window.addEventListener('billing-updated',listener);return()=>{clearInterval(timer);window.removeEventListener('billing-updated',listener);};},[page]);
+ const choose=async(id:string)=>{setBusy(id);try{await api.post(`/billing/subscriptions/${id}/select`,{expectedCurrentId:data.selectedId});await load();await refreshUser();toast.success('Đã chuyển quyền lợi sang gói đã chọn. Credit không bị trừ hoặc cộng lại.');}catch(e){setError(errorMessage(e));await load();}finally{setBusy('');}};
+ return <div className="space-y-4"><h2 className="text-lg font-semibold">Các gói đã đăng ký</h2><p className="text-sm text-slate-500">Mỗi gói có kỳ hạn riêng. Chuyển giữa các gói còn hạn để dùng quyền lợi; thời hạn vẫn chạy và credit dùng chung trong tài khoản.</p>{error&&<p role="alert" className="text-red-600">{error}</p>}{!data?<p>Đang tải gói...</p>:!data.items.length?<p className="text-sm text-slate-500">Chưa có gói được thanh toán qua VNPay.</p>:data.items.map((o:any)=><div key={o._id} className="rounded-xl border p-4 flex flex-wrap items-center justify-between gap-4"><div><strong>{o.name}</strong><p className="mt-1 text-xs text-slate-500">{o.billingCycle==='yearly'?'12 tháng':'1 tháng'} · {o.mode==='sandbox'?'Thử nghiệm':'Thực tế'}</p><p className="mt-1 text-sm">{o.endsAt?'Hết hạn: '+new Date(o.endsAt).toLocaleString('vi-VN',{timeZone:'Asia/Saigon'}):'Chưa có kỳ hạn'}</p><p className="text-xs mt-1 text-slate-400">{o._id}</p></div><button disabled={!!busy||!o.active||data.selectedId===o._id} onClick={()=>void choose(o._id)} className="rounded-xl bg-indigo-600 px-4 py-2 text-white text-sm disabled:bg-slate-100 disabled:text-slate-500">{busy===o._id?'Đang chuyển...':!o.active?'Đã hết hạn':data.selectedId===o._id?'Đang sử dụng':'Dùng gói này'}</button></div>)}{data?.total>10&&<div className="flex items-center gap-4 text-sm"><button disabled={page===1} onClick={()=>setPage(p=>p-1)}>Trang trước</button><span>{page} / {Math.ceil(data.total/10)}</span><button disabled={page*10>=data.total} onClick={()=>setPage(p=>p+1)}>Trang sau</button></div>}</div>;
+}

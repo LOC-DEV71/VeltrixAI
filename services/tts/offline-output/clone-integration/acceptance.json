@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "checks": {
+    "auth_plan_consent_csrf": true,
+    "enrollment_idempotent_private_owned": true,
+    "synthesis_wav_idempotent_credit": true,
+    "revoke_release_cleanup_delete": true
+  },
+  "audio": {
+    "bytes": 476204,
+    "duration": 4.96,
+    "sampleRate": 48000,
+    "channels": 1,
+    "bitsPerSample": 16,
+    "sha256": "025750d5ecffc808510450bbf58f293137fe2280e79218b7ed9c36c3b18fb4b9"
+  },
+  "fixturesRemoved": true
+}

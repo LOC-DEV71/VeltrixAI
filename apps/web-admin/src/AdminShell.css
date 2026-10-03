@@ -1,0 +1,24 @@
+@font-face{font-family:'Be Vietnam Pro';src:url('/fonts/BeVietnamPro-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'Be Vietnam Pro';src:url('/fonts/BeVietnamPro-Medium.ttf') format('truetype');font-weight:500;font-display:swap}
+@font-face{font-family:'Be Vietnam Pro';src:url('/fonts/BeVietnamPro-SemiBold.ttf') format('truetype');font-weight:600;font-display:swap}
+@font-face{font-family:'Be Vietnam Pro';src:url('/fonts/BeVietnamPro-Bold.ttf') format('truetype');font-weight:700;font-display:swap}
+
+/* Shared navigation for every authenticated Admin route. */
+.admin-shell .admin-sidebar{width:232px;background:#FFFFFF;color:#172033;border-right:1px solid #E1E5F5;font-family:'Be Vietnam Pro',system-ui,sans-serif}
+.admin-shell .admin-main{margin-left:232px}
+.admin-sidebar .brand{height:80px;border-bottom:1px solid #E1E5F5;color:#172033;padding:0 20px;margin-bottom:16px}
+.admin-sidebar .brand-mark{background:#4F46E5;color:#FFFFFF;width:36px;height:36px;border-radius:10px;letter-spacing:0;padding:0}
+.admin-sidebar .brand-mark svg{color:#FFFFFF}
+.admin-sidebar .brand-word{font-size:20px;letter-spacing:-.5px;font-weight:600}
+.admin-sidebar .brand-word>span{font-size:10px;letter-spacing:.8px;color:#64748B;margin-top:3px;font-weight:600}
+.admin-sidebar .nav-group{padding:0 12px;margin:12px 0 20px}
+.admin-sidebar .nav-group>p{font-size:10px;letter-spacing:.9px;color:#777587;padding:8px 12px;font-weight:600}
+.admin-sidebar .nav-item{color:#464555;font-size:12px;padding:12px;gap:10px;line-height:1.6}
+.admin-sidebar .nav-item:hover{background:#F1F3FF;color:#4F46E5}
+.admin-sidebar .nav-item.active{background:#EEF2FF;color:#4F46E5;box-shadow:inset 3px 0 #4F46E5;font-weight:600}
+.admin-sidebar .sidebar-bottom{border-color:#E1E5F5}
+.admin-sidebar .access-note strong{color:#172033}
+.admin-sidebar .access-note span,.admin-sidebar .sidebar-bottom>a{color:#64748B}
+.admin-sidebar .mobile-nav-close{color:#64748B}
+.admin-sidebar .nav-item:focus-visible,.admin-sidebar .brand:focus-visible{outline:2px solid #4F46E5;outline-offset:2px}
+@media(max-width:900px){.admin-shell .admin-main{margin-left:0}}

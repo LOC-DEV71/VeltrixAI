@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { requireAuth } from '../middlewares/authMiddleware';
+import { csrfProtection } from '../middlewares/csrfMiddleware';
+import { enrollVoice, listEnrollments, revokeVoice, deleteVoice } from '../controllers/VoiceEnrollmentController';
+const router = Router();
+router.get('/', requireAuth, listEnrollments);
+router.post('/', requireAuth, csrfProtection, enrollVoice);
+router.post('/:id/revoke', requireAuth, csrfProtection, revokeVoice);
+router.delete('/:id', requireAuth, csrfProtection, deleteVoice);
+export default router;

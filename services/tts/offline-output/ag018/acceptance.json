@@ -1,0 +1,25 @@
+{
+  "full_flow_pass": true,
+  "checks": {
+    "real_tts_ready": true,
+    "direct_client_rejected": true,
+    "auth_csrf_owner_enforced": true,
+    "repeated_requests_single_hold": true,
+    "concurrent_creation_single_job": true,
+    "worker_completed": true,
+    "repeated_completion_single_charge": true,
+    "protected_audio_download_decodes": true,
+    "stale_and_unavailable_single_refund": true
+  },
+  "audio": {
+    "bytes": 445484,
+    "duration": 4.64,
+    "sampleRate": 48000,
+    "channels": 1,
+    "bitsPerSample": 16,
+    "peakPcm16": 25466,
+    "sha256": "93e3c860c27eaabe10ce38f54e8606ad353c3d615dfd27219a757b5f8f90d98c",
+    "file": "worker-playback.wav"
+  },
+  "fixturesRemoved": true
+}

@@ -1,0 +1,394 @@
+{
+  "updatedAt": "02/10/2026",
+  "effectiveAt": "02/10/2026",
+  "intro": "Chào mừng bạn đến với **Veltrix AI Creator**.\n\nVeltrix AI Creator là nền tảng hỗ trợ người sáng tạo xây dựng quy trình nội dung bằng trí tuệ nhân tạo, từ ý tưởng ban đầu đến nội dung, kịch bản, phân chia Scene, giọng đọc và các prompt phục vụ quá trình tạo hình ảnh, thumbnail hoặc video trên các công cụ bên thứ ba.\n\nTrung tâm Chính sách & Điều khoản này giải thích:\n\n- quyền và nghĩa vụ khi sử dụng Veltrix;\n- cách tài khoản được quản lý;\n- các gói Free, Plus và Pro;\n- thanh toán và chu kỳ đăng ký;\n- cách Credit được tính và hoàn trả;\n- quy định sử dụng AI và TTS;\n- quyền đối với nội dung;\n- quyền riêng tư và dữ liệu;\n- các hành vi bị cấm;\n- cách xử lý khi có tranh chấp hoặc vi phạm.\n\nBằng việc tạo tài khoản, mua gói hoặc tiếp tục sử dụng Veltrix AI Creator, bạn xác nhận rằng bạn đã đọc và đồng ý với các chính sách áp dụng.",
+  "documents": [
+    {
+      "id": "terms",
+      "group": 0,
+      "sections": [
+        {
+          "number": 1,
+          "title": "PHẠM VI DỊCH VỤ",
+          "body": "Veltrix AI Creator có thể cung cấp các tính năng như:\n\n- tạo và quản lý Workspace;\n- tạo và quản lý Project;\n- hỗ trợ viết và chỉnh sửa nội dung bằng AI;\n- brainstorm ý tưởng;\n- tạo kịch bản;\n- phân tích nội dung;\n- chia nội dung thành các Scene;\n- Text to Speech;\n- quản lý giọng đọc;\n- tạo Image Prompt;\n- tạo Thumbnail Prompt;\n- tạo Video Prompt;\n- xây dựng mô tả cảnh;\n- đề xuất bối cảnh;\n- đề xuất nhân vật;\n- đề xuất góc máy;\n- đề xuất ánh sáng;\n- đề xuất phong cách hình ảnh;\n- quản lý nội dung theo từng Scene;\n- quản lý lịch sử tác vụ;\n- quản lý Credit;\n- quản lý nội dung đầu ra của Project;\n- các công cụ hỗ trợ Creator khác được bổ sung trong tương lai.\n\n## Veltrix không trực tiếp tạo hình ảnh hoặc video\n\nỞ phiên bản hiện tại, Veltrix AI Creator **không trực tiếp render hoặc generate file hình ảnh và video**.\n\nVeltrix có thể tạo:\n\n- prompt hình ảnh;\n- prompt thumbnail;\n- prompt video;\n- prompt animation;\n- mô tả cảnh;\n- hướng dẫn sáng tạo.\n\nNgười dùng có thể sử dụng các prompt này với những công cụ hoặc mô hình AI bên thứ ba mà mình lựa chọn."
+        },
+        {
+          "number": 3,
+          "title": "ĐIỀU KIỆN SỬ DỤNG",
+          "body": "Bạn chỉ được sử dụng Veltrix cho mục đích hợp pháp.\n\nBạn chịu trách nhiệm đối với:\n\n- nội dung mình nhập;\n- prompt;\n- tài nguyên upload;\n- Project;\n- output AI;\n- audio TTS;\n- cách sử dụng các prompt do Veltrix tạo;\n- nội dung cuối cùng được tạo trên nền tảng bên thứ ba.\n\nVeltrix cung cấp công cụ hỗ trợ sáng tạo và không thay thế trách nhiệm của người dùng trong việc kiểm tra nội dung trước khi xuất bản."
+        },
+        {
+          "number": 41,
+          "title": "TÍNH SẴN SÀNG CỦA DỊCH VỤ",
+          "body": "Veltrix cố gắng duy trì dịch vụ ổn định nhưng không cam kết uptime tuyệt đối 100%.\n\nDịch vụ có thể bị gián đoạn do:\n\n- bảo trì;\n- cập nhật;\n- lỗi hạ tầng;\n- sự cố nhà cung cấp;\n- tấn công mạng;\n- sự kiện ngoài khả năng kiểm soát hợp lý."
+        },
+        {
+          "number": 43,
+          "title": "THAY ĐỔI CHÍNH SÁCH",
+          "body": "Veltrix có thể cập nhật các chính sách khi:\n\n- sản phẩm thay đổi;\n- có tính năng mới;\n- thay đổi model AI;\n- thay đổi billing;\n- thay đổi nhà cung cấp;\n- pháp luật thay đổi.\n\nNgày cập nhật mới nhất sẽ được hiển thị tại đầu tài liệu.\n\nĐối với thay đổi quan trọng, Veltrix có thể thông báo qua:\n\n- email;\n- notification;\n- giao diện ứng dụng;\n- Trung tâm Chính sách."
+        }
+      ]
+    },
+    {
+      "id": "account",
+      "group": 0,
+      "sections": [
+        {
+          "number": 2,
+          "title": "TÀI KHOẢN NGƯỜI DÙNG",
+          "body": "Một số chức năng của Veltrix yêu cầu người dùng đăng ký tài khoản.\n\nNgười dùng có trách nhiệm:\n\n- cung cấp thông tin hợp lệ;\n- bảo mật tài khoản;\n- bảo mật mật khẩu hoặc phương thức đăng nhập;\n- không chia sẻ phiên đăng nhập trái phép;\n- thông báo cho Veltrix nếu phát hiện truy cập bất thường.\n\nNgười dùng không được:\n\n- sử dụng tài khoản của người khác khi chưa được phép;\n- bán hoặc cho thuê tài khoản trái phép;\n- tạo hàng loạt tài khoản nhằm nhận Credit hoặc ưu đãi;\n- lợi dụng lỗi hệ thống;\n- bypass phân quyền;\n- bypass Credit;\n- vượt qua giới hạn của gói bằng biện pháp kỹ thuật;\n- sử dụng automation gây ảnh hưởng tiêu cực tới hệ thống.\n\nVeltrix có thể yêu cầu xác minh tài khoản trong một số trường hợp liên quan đến:\n\n- bảo mật;\n- thanh toán;\n- chống gian lận;\n- khiếu nại;\n- sử dụng tính năng nhạy cảm."
+        },
+        {
+          "number": 39,
+          "title": "BẢO MẬT",
+          "body": "Veltrix áp dụng các biện pháp kỹ thuật và tổ chức hợp lý nhằm bảo vệ hệ thống.\n\nTuy nhiên, không hệ thống trực tuyến nào có thể đảm bảo an toàn tuyệt đối.\n\nNgười dùng cũng có trách nhiệm:\n\n- bảo mật thông tin đăng nhập;\n- không chia sẻ token;\n- không sử dụng mật khẩu yếu;\n- đăng xuất trên thiết bị công cộng;\n- báo cáo hoạt động đáng ngờ."
+        },
+        {
+          "number": 40,
+          "title": "KHÓA HOẶC HẠN CHẾ TÀI KHOẢN",
+          "body": "Veltrix có thể hạn chế hoặc khóa tài khoản nếu phát hiện:\n\n- gian lận;\n- abuse hệ thống;\n- bypass Credit;\n- tấn công;\n- mạo danh;\n- vi phạm nghiêm trọng;\n- rủi ro bảo mật.\n\nTrong trường hợp phù hợp, Veltrix có thể cảnh báo trước.\n\nTrường hợp nghiêm trọng có thể bị xử lý ngay nhằm bảo vệ hệ thống."
+        }
+      ]
+    },
+    {
+      "id": "plans",
+      "group": 1,
+      "sections": [
+        {
+          "number": 4,
+          "title": "CÁC GÓI DỊCH VỤ",
+          "body": "Veltrix AI Creator hiện cung cấp ba gói:\n\n## Free\n\nGói Free dành cho người dùng muốn trải nghiệm các tính năng cơ bản.\n\nGói Free có thể bao gồm:\n\n- Credit miễn phí theo chính sách từng thời điểm;\n- AI Content cơ bản;\n- TTS với giới hạn;\n- tạo prompt;\n- tạo và quản lý Project;\n- giới hạn lịch sử;\n- giới hạn model hoặc quyền truy cập.\n\nVeltrix có quyền điều chỉnh quyền lợi của gói Free trong tương lai.\n\n---\n\n## Plus\n\nPlus dành cho người dùng sử dụng Veltrix thường xuyên.\n\nPlus hỗ trợ:\n\n- **Plus Monthly**\n- **Plus Yearly**\n\nPlus có thể cung cấp:\n\n- nhiều Credit hơn Free;\n- giới hạn cao hơn;\n- quyền truy cập nhiều tính năng hơn;\n- nhiều giọng TTS hơn;\n- model AI nâng cao hơn;\n- quyền truy cập các Creator Tool bổ sung.\n\nQuyền lợi chính xác được hiển thị tại trang Pricing.\n\n---\n\n## Pro\n\nPro dành cho creator hoặc người dùng có nhu cầu sử dụng cao.\n\nPro hỗ trợ:\n\n- **Pro Monthly**\n- **Pro Yearly**\n\nPro có thể cung cấp:\n\n- lượng Credit cao hơn;\n- giới hạn lớn hơn;\n- model cao cấp;\n- tính năng nâng cao;\n- quyền truy cập sớm vào một số tính năng;\n- quyền sử dụng các công cụ chuyên sâu dành cho creator;\n- Voice Clone nếu tính năng này được Veltrix chính thức cung cấp.\n\nQuyền lợi chính xác được căn cứ vào thông tin hiển thị tại thời điểm mua gói.\n\n## Thời lượng kịch bản AI\n\n- Free: cho phép chọn tối đa 60 giây.\n- Plus: cho phép chọn tối đa 5 phút.\n- Pro: cho phép chọn tối đa 10 phút.\n\nĐây là thời lượng mục tiêu của kịch bản; thời lượng audio thực tế phụ thuộc vào lời đọc và giọng được chọn."
+        },
+        {
+          "number": 5,
+          "title": "CHU KỲ THANH TOÁN",
+          "body": "Gói Plus và Pro có thể thanh toán theo:\n\n### Theo tháng\n\nNgười dùng mua quyền sử dụng gói trong một chu kỳ tháng.\n\n### Theo năm\n\nNgười dùng mua quyền sử dụng gói trong một chu kỳ năm.\n\nGói năm có thể được cung cấp với mức giá ưu đãi hơn so với thanh toán từng tháng.\n\nTrước khi thanh toán, Veltrix sẽ hiển thị các thông tin quan trọng như:\n\n- tên gói;\n- chu kỳ;\n- giá;\n- Credit;\n- quyền lợi;\n- số tiền cần thanh toán."
+        },
+        {
+          "number": 6,
+          "title": "GIA HẠN GÓI",
+          "body": "Nếu một gói được thiết lập **tự động gia hạn**, Veltrix phải hiển thị rõ điều này trước khi người dùng xác nhận thanh toán.\n\nTrong trường hợp tự động gia hạn được bật:\n\n- gói sẽ gia hạn vào cuối chu kỳ;\n- phí của chu kỳ tiếp theo có thể được thu tự động;\n- người dùng có thể hủy gia hạn trước ngày thanh toán kế tiếp;\n- việc hủy không làm mất quyền lợi của chu kỳ đã thanh toán.\n\nNếu Veltrix không sử dụng tự động gia hạn cho một phương thức thanh toán cụ thể, người dùng sẽ cần chủ động gia hạn sau khi gói hết hạn.\n\nTrạng thái áp dụng cho tài khoản sẽ được hiển thị tại phần quản lý gói."
+        },
+        {
+          "number": 8,
+          "title": "THAY ĐỔI GIÁ",
+          "body": "Veltrix có thể thay đổi giá các gói trong tương lai.\n\nViệc thay đổi giá không làm thay đổi giao dịch đã hoàn tất trước đó.\n\nNếu thay đổi ảnh hưởng đến đăng ký định kỳ, Veltrix sẽ thông báo theo cách phù hợp trước khi mức giá mới được áp dụng khi cần thiết."
+        }
+      ]
+    },
+    {
+      "id": "payments",
+      "group": 1,
+      "sections": [
+        {
+          "number": 7,
+          "title": "CHÍNH SÁCH THANH TOÁN",
+          "body": "## Thanh toán thành công\n\nKhi giao dịch được xác nhận:\n\n- gói sẽ được kích hoạt;\n- quyền lợi được cập nhật;\n- Credit của gói được cộng;\n- giao dịch được ghi nhận.\n\nViệc đồng bộ có thể cần một khoảng thời gian ngắn.\n\n---\n\n## Thanh toán thất bại\n\nNếu giao dịch thất bại:\n\n- gói không được kích hoạt;\n- Credit không được cộng;\n- người dùng có thể thử thanh toán lại.\n\n---\n\n## Tiền đã bị trừ nhưng gói chưa kích hoạt\n\nNếu tiền đã bị trừ nhưng Veltrix chưa nhận được trạng thái thanh toán thành công, người dùng có thể liên hệ bộ phận hỗ trợ.\n\nNgười dùng có thể được yêu cầu cung cấp:\n\n- mã giao dịch;\n- thời gian giao dịch;\n- số tiền;\n- tài khoản liên quan;\n- bằng chứng thanh toán.\n\n---\n\n## Thanh toán trùng\n\nNếu một giao dịch bị thu tiền nhiều lần do lỗi hệ thống hoặc lỗi xử lý thanh toán, Veltrix sẽ kiểm tra và xử lý khoản thu trùng hợp lệ."
+        }
+      ]
+    },
+    {
+      "id": "credits",
+      "group": 1,
+      "sections": [
+        {
+          "number": 9,
+          "title": "CREDIT",
+          "body": "Credit là đơn vị sử dụng nội bộ của Veltrix AI Creator.\n\nCredit có thể được tiêu thụ cho:\n\n- AI Content;\n- chỉnh sửa nội dung bằng AI;\n- phân tích nội dung;\n- chia Scene;\n- tạo Image Prompt;\n- tạo Thumbnail Prompt;\n- tạo Video Prompt;\n- Text to Speech;\n- các tác vụ AI khác.\n\nCredit không phải:\n\n- tiền điện tử;\n- tiền gửi;\n- tài sản đầu tư;\n- phương thức thanh toán độc lập.\n\nCredit không được quy đổi trực tiếp thành tiền mặt trừ khi Veltrix công bố chính sách khác."
+        },
+        {
+          "number": 10,
+          "title": "CÁCH TÍNH CREDIT",
+          "body": "Mức Credit của một tác vụ có thể phụ thuộc vào:\n\n- độ dài văn bản;\n- số ký tự;\n- model AI;\n- số Scene;\n- độ phức tạp của tác vụ;\n- thời lượng audio;\n- số prompt cần tạo;\n- tính năng được sử dụng.\n\nNếu có thể tính trước, Veltrix sẽ hiển thị:\n\n> **Credit dự kiến**\n\ntrước khi tác vụ được thực hiện.\n\n**TTS: 100 Credit cho mỗi nhóm tối đa 100 ký tự, làm tròn lên.** 1–100 ký tự: 100 Credit; 101–200 ký tự: 200 Credit. Khoảng trắng đầu/cuối được bỏ trước khi tính. Tác vụ đã tạo giữ mức phí đã chốt, chỉ yêu cầu mới dùng mức phí mới."
+        },
+        {
+          "number": 14,
+          "title": "LỊCH SỬ CREDIT",
+          "body": "Veltrix có thể cung cấp lịch sử Credit để người dùng theo dõi:\n\n- Credit được cộng;\n- Credit đã sử dụng;\n- Credit được hoàn;\n- Credit từ gói;\n- Credit từ khuyến mãi;\n- tác vụ tương ứng;\n- thời gian giao dịch.\n\nVí dụ:\n\n| Hoạt động | Credit |\n|---|---:|\n| Nâng cấp Pro | +5.000 |\n| TTS | -100 |\n| Hoàn Credit do lỗi hệ thống | +100 |\n| Tạo Video Prompt | -5 |"
+        },
+        {
+          "number": 15,
+          "title": "THỜI HẠN CREDIT",
+          "body": "Thời hạn sử dụng Credit phụ thuộc vào loại Credit.\n\nVeltrix có thể có:\n\n- Credit theo gói;\n- Credit mua thêm;\n- Credit thưởng;\n- Credit khuyến mãi.\n\nNếu một loại Credit có ngày hết hạn, thông tin này phải được hiển thị rõ tại:\n\n- Pricing;\n- Billing;\n- Credit History;\n- hoặc khu vực quản lý tài khoản.\n\n**Credit của gói Plus/Pro đăng ký theo tháng được cộng dồn sang chu kỳ tháng tiếp theo. Quy định cộng dồn của gói năm chưa được công bố.**"
+        }
+      ]
+    },
+    {
+      "id": "credit-refunds",
+      "group": 1,
+      "sections": [
+        {
+          "number": 11,
+          "title": "HOÀN CREDIT KHI HỆ THỐNG GẶP LỖI",
+          "body": "Đây là nguyên tắc của Veltrix:\n\n> **Veltrix không tính Credit đối với tác vụ thất bại do lỗi hệ thống.**\n\nNếu Credit đã bị trừ nhưng tác vụ thất bại do lỗi từ Veltrix và không tạo ra kết quả sử dụng được, Credit tương ứng sẽ được hoàn lại.\n\nVí dụ:\n\n**Text to Speech**\n\n100 Credit được trừ.\n\nHệ thống gặp lỗi và không tạo được audio.\n\n→ **100 Credit được hoàn lại.**\n\nVí dụ:\n\n**Video Prompt**\n\n5 Credit được trừ.\n\nHệ thống lỗi trước khi prompt được tạo.\n\n→ **5 Credit được hoàn lại.**"
+        },
+        {
+          "number": 12,
+          "title": "CÁC TRƯỜNG HỢP CÓ THỂ ĐƯỢC HOÀN CREDIT",
+          "body": "Credit có thể được hoàn khi:\n\n- server Veltrix gặp lỗi;\n- tác vụ thất bại do lỗi xử lý nội bộ;\n- nhà cung cấp AI gặp lỗi và Veltrix không nhận được output;\n- TTS không tạo được audio;\n- hệ thống không trả kết quả;\n- tác vụ bị crash sau khi Credit đã được trừ;\n- lỗi kỹ thuật khiến output không tồn tại.\n\nViệc hoàn có thể được:\n\n- thực hiện tự động; hoặc\n- thực hiện sau khi hệ thống xác minh trạng thái tác vụ."
+        },
+        {
+          "number": 13,
+          "title": "TRƯỜNG HỢP KHÔNG TỰ ĐỘNG HOÀN CREDIT",
+          "body": "Credit không mặc nhiên được hoàn khi tác vụ đã hoàn thành đúng chức năng.\n\nVí dụ:\n\n- AI đã tạo prompt nhưng người dùng không thích;\n- TTS đã tạo audio nhưng người dùng muốn đổi giọng;\n- AI Content đã trả kết quả nhưng người dùng muốn cách viết khác;\n- Scene đã được chia thành công nhưng người dùng muốn cấu trúc khác;\n- prompt bị người dùng sửa sau khi tạo;\n- yêu cầu bị từ chối do vi phạm chính sách;\n- dữ liệu đầu vào không hợp lệ.\n\nNguyên tắc:\n\n> **Không hài lòng với kết quả không đồng nghĩa với lỗi hệ thống.**\n\nNgười dùng vẫn có thể chỉnh sửa hoặc tạo lại nội dung."
+        }
+      ]
+    },
+    {
+      "id": "refunds",
+      "group": 1,
+      "sections": [
+        {
+          "number": 16,
+          "title": "CHÍNH SÁCH HOÀN TIỀN",
+          "body": "Hoàn Credit và hoàn tiền là hai việc khác nhau.\n\n## Hoàn Credit\n\nÁp dụng cho tác vụ AI bị lỗi do hệ thống.\n\n## Hoàn tiền\n\nÁp dụng đối với khoản tiền người dùng đã thanh toán.\n\nVeltrix có thể xem xét hoàn tiền trong các trường hợp:\n\n- giao dịch bị tính phí nhiều lần;\n- thanh toán nhưng gói không được kích hoạt;\n- lỗi thanh toán nghiêm trọng;\n- trường hợp được pháp luật yêu cầu;\n- trường hợp đặc biệt được Veltrix xác nhận."
+        },
+        {
+          "number": 17,
+          "title": "TRƯỜNG HỢP CÓ THỂ KHÔNG ĐƯỢC HOÀN TIỀN",
+          "body": "Veltrix có thể từ chối hoàn tiền trong các trường hợp:\n\n- người dùng đã sử dụng đáng kể quyền lợi;\n- phần lớn Credit đã được sử dụng;\n- người dùng đổi ý sau khi dịch vụ đã được cung cấp;\n- kết quả AI không đúng sở thích cá nhân nhưng tác vụ hoạt động đúng;\n- tài khoản bị hạn chế do vi phạm chính sách;\n- người dùng cố tình lợi dụng chính sách hoàn tiền.\n\n**Thời hạn gửi yêu cầu hoàn tiền chưa được công bố.**"
+        }
+      ]
+    },
+    {
+      "id": "tax",
+      "group": 1,
+      "sections": [
+        {
+          "number": 18,
+          "title": "HÓA ĐƠN VÀ THUẾ",
+          "body": "Giá hiển thị có thể bao gồm hoặc chưa bao gồm thuế tùy theo:\n\n- khu vực;\n- phương thức thanh toán;\n- pháp nhân vận hành Veltrix;\n- quy định hiện hành.\n\nNếu Veltrix hỗ trợ xuất hóa đơn, người dùng chịu trách nhiệm cung cấp thông tin chính xác."
+        }
+      ]
+    },
+    {
+      "id": "ai",
+      "group": 2,
+      "sections": [
+        {
+          "number": 19,
+          "title": "AI CONTENT",
+          "body": "Veltrix có thể sử dụng AI để hỗ trợ:\n\n- lên ý tưởng;\n- viết nội dung;\n- viết kịch bản;\n- chỉnh sửa;\n- tóm tắt;\n- thay đổi phong cách;\n- tạo tiêu đề;\n- tạo mô tả;\n- phân tích nội dung;\n- chia Scene;\n- tạo prompt.\n\nAI có thể tạo ra kết quả chưa hoàn hảo.\n\nNgười dùng phải kiểm tra output trước khi xuất bản hoặc sử dụng thương mại."
+        },
+        {
+          "number": 27,
+          "title": "ĐỘ CHÍNH XÁC CỦA AI",
+          "body": "AI có thể:\n\n- hiểu sai yêu cầu;\n- tạo thông tin không chính xác;\n- tạo lỗi ngôn ngữ;\n- tạo prompt chưa tối ưu;\n- tạo nội dung tương tự với nội dung khác.\n\nVeltrix không đảm bảo output AI:\n\n- chính xác tuyệt đối;\n- hoàn toàn độc nhất;\n- phù hợp với mọi trường hợp;\n- có thể dùng ngay mà không cần kiểm tra."
+        }
+      ]
+    },
+    {
+      "id": "scenes",
+      "group": 2,
+      "sections": [
+        {
+          "number": 20,
+          "title": "SCENE GENERATION",
+          "body": "Veltrix có thể phân tích nội dung và đề xuất cách chia thành các Scene.\n\nMột Scene có thể chứa:\n\n- nội dung;\n- lời thoại;\n- thời lượng dự kiến;\n- Voice;\n- Image Prompt;\n- Video Prompt;\n- Thumbnail Prompt;\n- ghi chú sáng tạo.\n\nScene do AI đề xuất chỉ là công cụ hỗ trợ.\n\nNgười dùng có thể chỉnh sửa trước khi sử dụng."
+        }
+      ]
+    },
+    {
+      "id": "image-prompts",
+      "group": 2,
+      "sections": [
+        {
+          "number": 21,
+          "title": "IMAGE PROMPT",
+          "body": "Veltrix có thể tạo prompt phục vụ công cụ AI tạo hình ảnh của bên thứ ba.\n\nPrompt có thể mô tả:\n\n- chủ thể;\n- nhân vật;\n- bối cảnh;\n- trang phục;\n- biểu cảm;\n- góc máy;\n- ánh sáng;\n- màu sắc;\n- bố cục;\n- phong cách;\n- tỷ lệ khung hình.\n\nVeltrix không trực tiếp tạo file hình ảnh từ prompt đó."
+        }
+      ]
+    },
+    {
+      "id": "thumbnail-prompts",
+      "group": 2,
+      "sections": [
+        {
+          "number": 22,
+          "title": "THUMBNAIL PROMPT",
+          "body": "Veltrix có thể tạo prompt thumbnail dựa trên:\n\n- nội dung;\n- chủ đề;\n- audience;\n- Scene;\n- cảm xúc;\n- phong cách;\n- nền tảng nội dung.\n\nVeltrix không đảm bảo rằng prompt sẽ tạo ra thumbnail giống hoàn toàn với mô tả khi được sử dụng trên hệ thống khác."
+        }
+      ]
+    },
+    {
+      "id": "video-prompts",
+      "group": 2,
+      "sections": [
+        {
+          "number": 23,
+          "title": "VIDEO PROMPT",
+          "body": "Veltrix có thể tạo prompt phục vụ các công cụ AI video bên thứ ba.\n\nPrompt có thể bao gồm:\n\n- nhân vật;\n- hành động;\n- bối cảnh;\n- camera movement;\n- framing;\n- ánh sáng;\n- mood;\n- animation;\n- continuity;\n- thời lượng đề xuất;\n- tỷ lệ khung hình.\n\nVeltrix hiện **không trực tiếp render video**."
+        }
+      ]
+    },
+    {
+      "id": "tts",
+      "group": 2,
+      "sections": [
+        {
+          "number": 25,
+          "title": "TEXT TO SPEECH",
+          "body": "Veltrix cho phép chuyển văn bản thành audio bằng TTS.\n\nNgười dùng chịu trách nhiệm với:\n\n- văn bản đầu vào;\n- nội dung audio;\n- mục đích sử dụng;\n- việc xuất bản audio.\n\nKhông được sử dụng TTS để:\n\n- lừa đảo;\n- mạo danh;\n- tạo phát ngôn giả gây hại;\n- giả danh tổ chức;\n- chiếm đoạt tài sản;\n- đe dọa;\n- quấy rối;\n- thực hiện hành vi trái pháp luật."
+        }
+      ]
+    },
+    {
+      "id": "voice-clone",
+      "group": 2,
+      "sections": [
+        {
+          "number": 26,
+          "title": "VOICE CLONE",
+          "body": "Đối với tính năng Voice Clone, người dùng chỉ được clone:\n\n- chính giọng của mình; hoặc\n- giọng của người đã đồng ý rõ ràng.\n\nKhông được clone giọng nhằm:\n\n- mạo danh;\n- lừa đảo;\n- deepfake gây hại;\n- tạo phát ngôn giả;\n- vượt qua hệ thống xác minh;\n- làm tổn hại danh tiếng người khác.\n\nVeltrix có thể yêu cầu:\n\n- xác minh danh tính;\n- xác minh giọng;\n- bằng chứng đồng ý.\n\nTính năng Voice Clone hiện áp dụng cho gói Plus và Pro. Mẫu giọng được lưu riêng và dọn khi bạn thu hồi hoặc xóa giọng; việc thu hồi không xóa các lời đọc đã tạo trước đó."
+        }
+      ]
+    },
+    {
+      "id": "user-content",
+      "group": 3,
+      "sections": [
+        {
+          "number": 28,
+          "title": "NỘI DUNG CỦA NGƯỜI DÙNG",
+          "body": "Người dùng giữ quyền đối với nội dung hợp pháp mà mình đưa lên Veltrix.\n\nVí dụ:\n\n- văn bản;\n- prompt;\n- Project;\n- audio;\n- hình ảnh tham chiếu;\n- tài liệu;\n- tài nguyên.\n\nNgười dùng cấp cho Veltrix quyền kỹ thuật cần thiết để:\n\n- lưu trữ;\n- xử lý;\n- phân tích;\n- truyền đến hệ thống AI;\n- tạo output;\n\nnhằm cung cấp dịch vụ."
+        }
+      ]
+    },
+    {
+      "id": "output",
+      "group": 3,
+      "sections": [
+        {
+          "number": 29,
+          "title": "OUTPUT CỦA VELTRIX",
+          "body": "Output có thể bao gồm:\n\n- nội dung;\n- kịch bản;\n- Scene;\n- tiêu đề;\n- mô tả;\n- Image Prompt;\n- Thumbnail Prompt;\n- Video Prompt;\n- audio TTS;\n- các nội dung hỗ trợ khác.\n\nTrong phạm vi pháp luật cho phép, người dùng có thể sử dụng output tạo từ tài khoản của mình.\n\nTuy nhiên, người dùng chịu trách nhiệm kiểm tra quyền sử dụng trước khi dùng cho mục đích thương mại."
+        }
+      ]
+    },
+    {
+      "id": "copyright",
+      "group": 3,
+      "sections": [
+        {
+          "number": 30,
+          "title": "BẢN QUYỀN VÀ SỞ HỮU TRÍ TUỆ",
+          "body": "Người dùng không được tải lên hoặc sử dụng:\n\n- nội dung vi phạm bản quyền;\n- thương hiệu trái phép;\n- tài sản mà mình không có quyền sử dụng;\n- nội dung xâm phạm quyền người khác.\n\nNếu Veltrix nhận được khiếu nại hợp lệ, Veltrix có thể:\n\n- tạm ẩn nội dung;\n- yêu cầu giải trình;\n- xóa nội dung;\n- hạn chế tài khoản."
+        }
+      ]
+    },
+    {
+      "id": "acceptable-use",
+      "group": 3,
+      "sections": [
+        {
+          "number": 31,
+          "title": "CHÍNH SÁCH SỬ DỤNG CHẤP NHẬN ĐƯỢC",
+          "body": "Không được sử dụng Veltrix để:\n\n- tấn công hệ thống;\n- DDoS;\n- phát tán malware;\n- bypass Credit;\n- bypass rate limit;\n- abuse API;\n- scraping trái phép;\n- truy cập tài khoản người khác;\n- khai thác bug để trục lợi;\n- tạo tài khoản hàng loạt trái phép;\n- lừa đảo;\n- mạo danh;\n- vi phạm pháp luật;\n- xâm phạm quyền sở hữu trí tuệ."
+        }
+      ]
+    },
+    {
+      "id": "privacy",
+      "group": 4,
+      "sections": [
+        {
+          "number": 32,
+          "title": "QUYỀN RIÊNG TƯ",
+          "body": "Veltrix có thể xử lý các nhóm dữ liệu sau.\n\n## Dữ liệu tài khoản\n\n- tên;\n- email;\n- avatar;\n- ID tài khoản;\n- gói;\n- Credit;\n- thông tin đăng nhập cần thiết.\n\n## Dữ liệu Project\n\n- nội dung;\n- Scene;\n- prompt;\n- audio;\n- lịch sử tạo;\n- cấu hình Project.\n\n## Dữ liệu kỹ thuật\n\n- IP;\n- trình duyệt;\n- thiết bị;\n- thời gian truy cập;\n- log;\n- lỗi;\n- hoạt động bảo mật.\n\n## Dữ liệu thanh toán\n\n- mã giao dịch;\n- số tiền;\n- trạng thái;\n- gói;\n- ngày thanh toán;\n- mã tham chiếu.\n\nThông tin thanh toán nhạy cảm có thể được nhà cung cấp thanh toán trực tiếp xử lý."
+        },
+        {
+          "number": 33,
+          "title": "MỤC ĐÍCH SỬ DỤNG DỮ LIỆU",
+          "body": "Veltrix có thể sử dụng dữ liệu để:\n\n- cung cấp dịch vụ;\n- thực hiện AI task;\n- tạo TTS;\n- lưu Project;\n- quản lý tài khoản;\n- quản lý Credit;\n- xử lý thanh toán;\n- phòng chống gian lận;\n- bảo mật;\n- hỗ trợ người dùng;\n- phát hiện lỗi;\n- cải thiện hệ thống;\n- đáp ứng nghĩa vụ pháp lý.\n\nVeltrix không bán dữ liệu cá nhân của người dùng cho nhà quảng cáo."
+        }
+      ]
+    },
+    {
+      "id": "cookies",
+      "group": 4,
+      "sections": [
+        {
+          "number": 36,
+          "title": "COOKIE",
+          "body": "Veltrix có thể sử dụng cookie hoặc công nghệ tương tự để:\n\n- duy trì đăng nhập;\n- bảo mật phiên;\n- lưu cài đặt;\n- chống gian lận;\n- đo hiệu năng;\n- phân tích hoạt động sản phẩm.\n\nCookie cần thiết cho đăng nhập và bảo mật có thể được sử dụng để dịch vụ hoạt động bình thường."
+        }
+      ]
+    },
+    {
+      "id": "retention",
+      "group": 4,
+      "sections": [
+        {
+          "number": 37,
+          "title": "LƯU TRỮ DỮ LIỆU",
+          "body": "Veltrix có thể lưu:\n\n- Project;\n- Content;\n- Scene;\n- prompt;\n- audio;\n- lịch sử Credit;\n- giao dịch;\n- log hệ thống.\n\nDữ liệu được lưu trong thời gian cần thiết để cung cấp dịch vụ hoặc đáp ứng yêu cầu kỹ thuật, bảo mật và pháp lý."
+        }
+      ]
+    },
+    {
+      "id": "deletion",
+      "group": 4,
+      "sections": [
+        {
+          "number": 38,
+          "title": "XÓA TÀI KHOẢN",
+          "body": "Người dùng có thể yêu cầu xóa tài khoản nếu tính năng này được hỗ trợ hoặc thông qua bộ phận hỗ trợ.\n\nKhi tài khoản bị xóa:\n\n- quyền truy cập có thể bị chấm dứt;\n- Workspace và Project có thể bị xóa;\n- audio có thể bị xóa;\n- Credit chưa sử dụng có thể mất;\n- dữ liệu liên quan có thể được lên lịch xóa.\n\nMột số dữ liệu có thể cần được giữ lại đối với:\n\n- thanh toán;\n- chống gian lận;\n- tranh chấp;\n- nghĩa vụ pháp lý;\n- bảo mật."
+        }
+      ]
+    },
+    {
+      "id": "third-parties",
+      "group": 4,
+      "sections": [
+        {
+          "number": 24,
+          "title": "KẾT QUẢ TỪ NỀN TẢNG BÊN THỨ BA",
+          "body": "Cùng một prompt có thể cho kết quả khác nhau trên các model khác nhau.\n\nKết quả phụ thuộc vào:\n\n- nhà cung cấp;\n- model;\n- phiên bản model;\n- seed;\n- cấu hình generation;\n- safety filter;\n- chính sách của dịch vụ;\n- cách dịch vụ diễn giải prompt.\n\nVeltrix không đảm bảo prompt sẽ cho kết quả giống nhau trên mọi nền tảng."
+        },
+        {
+          "number": 34,
+          "title": "NHÀ CUNG CẤP BÊN THỨ BA",
+          "body": "Veltrix có thể sử dụng:\n\n- nhà cung cấp AI;\n- cloud;\n- database;\n- CDN;\n- email;\n- thanh toán;\n- monitoring;\n- analytics.\n\nKhi cần để thực hiện một tác vụ, dữ liệu liên quan có thể được truyền tới dịch vụ tương ứng.\n\nVeltrix cố gắng giới hạn dữ liệu truyền đi ở mức cần thiết cho chức năng."
+        },
+        {
+          "number": 35,
+          "title": "AI BÊN THỨ BA",
+          "body": "Một số tác vụ AI của Veltrix có thể sử dụng model hoặc API do bên thứ ba cung cấp.\n\nVeltrix không kiểm soát tuyệt đối:\n\n- thời gian hoạt động;\n- thay đổi model;\n- thay đổi API;\n- output;\n- chính sách của nhà cung cấp.\n\nVeltrix có thể thay đổi nhà cung cấp khi cần để duy trì hoặc cải thiện dịch vụ."
+        }
+      ]
+    },
+    {
+      "id": "liability",
+      "group": 5,
+      "sections": [
+        {
+          "number": 42,
+          "title": "GIỚI HẠN TRÁCH NHIỆM",
+          "body": "Trong phạm vi pháp luật cho phép, Veltrix không chịu trách nhiệm đối với thiệt hại phát sinh từ:\n\n- việc sử dụng output AI mà không kiểm chứng;\n- kết quả từ nền tảng tạo ảnh/video bên thứ ba;\n- prompt không cho kết quả như mong muốn;\n- nội dung người dùng tải lên;\n- vi phạm quyền của bên thứ ba do người dùng;\n- sự cố ngoài khả năng kiểm soát hợp lý;\n- gián đoạn từ nhà cung cấp bên thứ ba.\n\nQuy định này không loại trừ trách nhiệm mà pháp luật không cho phép miễn trừ."
+        }
+      ]
+    },
+    {
+      "id": "complaints",
+      "group": 5,
+      "sections": [
+        {
+          "number": 44,
+          "title": "KHIẾU NẠI VÀ HỖ TRỢ",
+          "body": "Người dùng có thể liên hệ Veltrix khi cần hỗ trợ về:\n\n- tài khoản;\n- Credit;\n- TTS;\n- thanh toán;\n- lỗi hệ thống;\n- quyền riêng tư;\n- bản quyền.\n\nKhi liên hệ về một giao dịch hoặc lỗi, người dùng nên cung cấp:\n\n- email tài khoản;\n- mã Project nếu có;\n- mã giao dịch hoặc Job ID;\n- thời gian xảy ra lỗi;\n- mô tả vấn đề.\n\nKhông gửi mật khẩu qua email hỗ trợ."
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "group": 5,
+      "sections": [
+        {
+          "number": 45,
+          "title": "LIÊN HỆ",
+          "body": "**Hỗ trợ chung**  \n`support@veltrix.example` (minh họa, chưa tiếp nhận yêu cầu).\n\n**Thanh toán**  \n`billing@veltrix.example` (minh họa, chưa tiếp nhận yêu cầu).\n\n**Quyền riêng tư**  \n`privacy@veltrix.example` (minh họa, chưa tiếp nhận yêu cầu).\n\n**Pháp lý & Bản quyền**  \n`legal@veltrix.example` (minh họa, chưa tiếp nhận yêu cầu).\n\n**Đơn vị vận hành**  \nThông tin chưa công bố.\n\n**Địa chỉ**  \nThông tin chưa công bố."
+        }
+      ]
+    }
+  ]
+}

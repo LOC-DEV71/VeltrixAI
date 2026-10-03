@@ -1,0 +1,24 @@
+﻿{
+    "restart_and_synthesis_pass":  true,
+    "os_firewall_verified":  true,
+    "runs":  [
+                 {
+                     "run":  1,
+                     "audio":  "service-1.wav",
+                     "bytes":  330284,
+                     "peak_pcm16":  23834,
+                     "sha256":  "f3aad307eb0e5603477d30ae12c1432863cb2ebdda9467ffb0d284548c7d3a11"
+                 },
+                 {
+                     "run":  2,
+                     "audio":  "service-2.wav",
+                     "bytes":  330284,
+                     "peak_pcm16":  24124,
+                     "sha256":  "e87c58a41491ff2f88f78ba9a8abedcf49c26130e7d3ebd61531adade7024d8b"
+                 }
+             ],
+    "tested_manifest_sha256":  "b1441c02440e791f2bec5f5f897709ec09af16458e7eab1c64605be621059079",
+    "bundle_path":  "C:\\CreatorAI-Backups\\tts-artifacts",
+    "restored_environment":  "C:\\DevStack\\CreatorAI\\services\\tts\\.venv-from-backup",
+    "listening_review_pass":  false
+}

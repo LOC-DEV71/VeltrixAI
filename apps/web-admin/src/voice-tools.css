@@ -1,0 +1,8 @@
+.voice-preview-editor{border-top:1px solid #e5e9f1;padding-top:20px;display:grid;gap:14px}
+.voice-preview-editor h3{margin:0}.voice-preview-editor label{display:grid;gap:8px}
+.system-voice-create-modal .voice-edit-form{margin-top:20px}
+.system-voice-create-modal input[type=file]{display:block;margin-top:10px;max-width:100%}
+.voice-order-list{list-style:none;margin:20px 0;padding:0;max-height:440px;overflow:auto}
+.voice-order-list li{display:flex;align-items:center;gap:10px;border:1px solid #e5e9f1;background:#fff;border-radius:9px;padding:12px;margin-bottom:8px;cursor:grab}
+.voice-order-list li strong{flex:1;min-width:0;overflow-wrap:anywhere}.voice-order-list li:active{cursor:grabbing}
+.voice-order-list li>span:first-of-type{min-width:20px;color:#7c879b}

@@ -1,0 +1,13 @@
+import {Router} from 'express';
+import {requireAdminAuth,requirePermission} from '../middlewares/adminAuthMiddleware';
+import {orderHistory,cashSummary,creditHistory} from '../services/BillingHistory';
+import {BillingError} from '../services/BillingService';
+import {adminOrders,payments,cashflow,orderDetails} from '../services/AdminFinance';
+const router=Router();
+router.use(requireAdminAuth,requirePermission('billing.read'));
+router.use((_req,res,next)=>{res.setHeader('Cache-Control','no-store');next();});
+const route=(fn:any)=>(req:any,res:any)=>Promise.resolve(fn(req.query)).then(data=>res.json({success:true,data})).catch(e=>res.status(e instanceof BillingError?e.status:500).json({success:false,error:{code:e instanceof BillingError?e.code:'BILLING_UNAVAILABLE'}}));
+router.get('/orders',route(adminOrders));router.get('/summary',route(cashSummary));router.get('/credits',route(creditHistory));
+router.get('/payments',route(payments));router.get('/cashflow',route(cashflow));
+router.get('/orders/:id',(req,res)=>orderDetails(String(req.params.id)).then(data=>res.json({success:true,data})).catch(e=>res.status(e instanceof BillingError?e.status:500).json({success:false,error:{code:e instanceof BillingError?e.code:'BILLING_UNAVAILABLE'}})));
+export default router;

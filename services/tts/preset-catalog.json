@@ -1,0 +1,134 @@
+{
+  "package": "vieneu==3.8.3",
+  "sourceCommit": "85344322b7258b4e25479b692e8e3396baf9db34",
+  "presetFile": "vieneu/assets/voices_v3_turbo.json",
+  "sha256": "e1f13cd2c2e0d29fdab5e15bfd7a30f3d7b768e6132bb43dd2b853f8efefdce9",
+  "defaultVoice": "Hải Đăng",
+  "presets": [
+    {
+      "providerVoiceId": "Adam bựa",
+      "gender": "male",
+      "description": "Nam · Bắc · Phong cách tự nhiên"
+    },
+    {
+      "providerVoiceId": "Trúc Ly",
+      "gender": "female",
+      "description": "Nữ · Bắc · Phong cách tự nhiên"
+    },
+    {
+      "providerVoiceId": "Thiện Minh",
+      "gender": "male",
+      "description": "Nam · Bắc · Phong cách kể chuyện"
+    },
+    {
+      "providerVoiceId": "Mai Anh",
+      "gender": "female",
+      "description": "Nữ · Bắc · Phong cách tin tức"
+    },
+    {
+      "providerVoiceId": "Hải Đăng",
+      "gender": "male",
+      "description": "Nam · Bắc · Phong cách tự nhiên"
+    },
+    {
+      "providerVoiceId": "Thùy Dung",
+      "gender": "female",
+      "description": "Nữ · Nam · Phong cách tin tức"
+    },
+    {
+      "providerVoiceId": "Thiền Tâm Đức",
+      "gender": "male",
+      "description": "Nam · Bắc · Phong cách kể chuyện"
+    },
+    {
+      "providerVoiceId": "Ngọc Huyền",
+      "gender": "female",
+      "description": "Nữ · Bắc · Giọng đọc tự nhiên"
+    },
+    {
+      "providerVoiceId": "Quang Sơn",
+      "gender": "male",
+      "description": "Nam · Trung · Phong cách tự nhiên"
+    },
+    {
+      "providerVoiceId": "Ngọc Trân",
+      "gender": "female",
+      "description": "Nữ · Trung · Phong cách tự nhiên"
+    },
+    {
+      "providerVoiceId": "Minh Đức",
+      "gender": "male",
+      "description": "Nam · Bắc · Phong cách tin tức"
+    },
+    {
+      "providerVoiceId": "Phạm Tuyên",
+      "gender": "male",
+      "description": "Nam · Bắc · Phong cách tự nhiên"
+    },
+    {
+      "providerVoiceId": "Thái Sơn",
+      "gender": "male",
+      "description": "Nam · Nam · Phong cách kể chuyện"
+    },
+    {
+      "providerVoiceId": "Xuân Vĩnh",
+      "gender": "male",
+      "description": "Nam · Bắc · Phong cách tự nhiên"
+    },
+    {
+      "providerVoiceId": "Thanh Bình",
+      "gender": "male",
+      "description": "Nam · Bắc · Phong cách kể chuyện"
+    },
+    {
+      "providerVoiceId": "Ngọc Linh",
+      "gender": "female",
+      "description": "Nữ · Bắc · Phong cách kể chuyện"
+    },
+    {
+      "providerVoiceId": "Đoan Trang",
+      "gender": "female",
+      "description": "Nữ · Bắc · Phong cách tự nhiên"
+    },
+    {
+      "providerVoiceId": "Thục Đoan",
+      "gender": "female",
+      "description": "Nữ · Nam · Phong cách kể chuyện"
+    },
+    {
+      "providerVoiceId": "Minh Triết",
+      "gender": "male",
+      "description": "Nam · Nam · Phong cách tin tức"
+    },
+    {
+      "providerVoiceId": "Mỹ Duyên",
+      "gender": "female",
+      "description": "Nữ · Nam · Phong cách đọc truyện"
+    },
+    {
+      "providerVoiceId": "Quỳnh Anh",
+      "gender": "female",
+      "description": "Nữ · Bắc · Phong cách đọc truyện"
+    },
+    {
+      "providerVoiceId": "Đức Trí",
+      "gender": "male",
+      "description": "Nam · Nam · Phong cách đọc truyện"
+    },
+    {
+      "providerVoiceId": "Kim Thanh",
+      "gender": "female",
+      "description": "Nữ · Nam · Phong cách đọc truyện"
+    },
+    {
+      "providerVoiceId": "Adam",
+      "gender": "male",
+      "description": "Nam · Nam · Giọng đọc tự nhiên"
+    },
+    {
+      "providerVoiceId": "Quốc Tuấn",
+      "gender": "male",
+      "description": "Nam · Bắc · Phong cách tự nhiên"
+    }
+  ]
+}

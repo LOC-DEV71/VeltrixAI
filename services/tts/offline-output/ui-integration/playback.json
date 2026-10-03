@@ -1,0 +1,17 @@
+﻿[
+    {
+        "sha256":  "6624189e0c01cb220ca2f5126fffcffb20eef925577e0c1e4282e24689bed593",
+        "file":  "standalone.wav",
+        "windows_playback_completed":  true
+    },
+    {
+        "sha256":  "f78790218d27c86e45b7a641554b4e7af6bf5a67e79695afed9d47afd989ace3",
+        "file":  "scene.wav",
+        "windows_playback_completed":  true
+    },
+    {
+        "sha256":  "68c69d33664a7d7a47c5fe037b446725366b66b57cb99ec4373f9a0f1455f427",
+        "file":  "combined.wav",
+        "windows_playback_completed":  true
+    }
+]

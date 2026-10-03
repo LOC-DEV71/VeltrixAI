@@ -1,0 +1,20 @@
+{
+  "restart_and_synthesis_pass": true,
+  "os_firewall_verified": true,
+  "runs": [
+    {
+      "run": 1,
+      "audio": "service-1.wav",
+      "bytes": 330284,
+      "peak_pcm16": 24538,
+      "sha256": "9ddde5d064fac6af9d5193ef5e127d8396155dbfb1776faa1d98cb12458ffe8c"
+    },
+    {
+      "run": 2,
+      "audio": "service-2.wav",
+      "bytes": 307244,
+      "peak_pcm16": 30534,
+      "sha256": "5bd03156c008f300de79cfe5e633efde4145d0a3df7638a351f3e9740f97ae35"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "name": "@creatorai/backend-api",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./tts-worker": {
+      "types": "./tts-worker.d.ts",
+      "default": "./dist/workers/tts.js"
+    }
+  },
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "worker:tts": "node dist/workers/tts.js",
+    "lint": "oxlint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:content": "pnpm run build && node --test --test-isolation=none tests/content-generation.test.cjs",
+    "test:ai": "pnpm run build && node --test tests/ai-provider.test.cjs tests/local-ai-jobs.test.cjs",
+    "test:projects": "pnpm run build && node --test --test-isolation=none tests/projects.test.cjs",
+    "test:tts": "pnpm run build && node --test --test-isolation=none tests/tts-provider.test.cjs tests/tts-worker.test.cjs tests/voices.test.cjs tests/audio-cache.test.cjs tests/tts-pricing.test.cjs && node --test tests/voice-enrollments.test.cjs",
+    "test:clone:local": "pnpm run build && node scripts/test-clone-local.cjs",
+    "test:tts:local": "pnpm run build && node scripts/test-tts-local.cjs",
+    "seed:voices": "pnpm run build && node dist/scripts/seedSystemVoices.js",
+    "seed:voice-avatars": "pnpm run build && node dist/scripts/seedVoiceAvatars.js",
+    "test:plans": "pnpm run build && node --test tests/plans.test.cjs",
+    "seed:plans": "pnpm run build && node dist/scripts/seedPlans.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "bullmq": "^6.3.10",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^18.0.4",
+    "express": "^5.0.1",
+    "google-auth-library": "^11.1.0",
+    "helmet": "^8.0.0",
+    "ioredis": "^6.0.0",
+    "ioredis-mock": "^8.13.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.7.0",
+    "sharp": "0.34.5",
+    "socket.io": "^4.8.4",
+    "uuid": "^14.0.2"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/supertest": "^7.2.1",
+    "@types/uuid": "^11.0.0",
+    "@vitest/coverage-v8": "^5.0.2",
+    "mongodb-memory-server": "^11.3.0",
+    "oxlint": "^1.86.0",
+    "socket.io-client": "^4.8.4",
+    "supertest": "^7.3.0",
+    "ts-node-dev": "^2.0.0",
+    "vitest": "^5.0.2"
+  }
+}

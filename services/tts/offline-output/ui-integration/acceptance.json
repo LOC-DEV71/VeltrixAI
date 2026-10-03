@@ -1,0 +1,33 @@
+{
+  "pass": true,
+  "checks": {
+    "creditsPer100Chars": 100,
+    "standalone_idempotent_reserved": true,
+    "scene_text_voice_saved_with_conflict_guard": true,
+    "settledCredits": 200,
+    "real_worker_cloudinary_database_audio": true,
+    "history_and_scene_survive_reload": true,
+    "owner_only_playback": true
+  },
+  "audio": [
+    {
+      "kind": "standalone",
+      "bytes": 445484,
+      "duration": 4.64,
+      "sampleRate": 48000,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "sha256": "81faae12b5ecdbb36967ab5c793b23044435e1162ae15d78850a0513307b462f"
+    },
+    {
+      "kind": "scene",
+      "bytes": 568364,
+      "duration": 5.92,
+      "sampleRate": 48000,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "sha256": "8e7005b59dea07ad523455994f639a1ad64169d8e24de77008afeb3b0a970f78"
+    }
+  ],
+  "fixturesRemoved": true
+}

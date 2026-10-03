@@ -1,0 +1,32 @@
+﻿[
+    {
+        "sha256":  "f2db9c3e2c8f6a7d7c8549fddf58b739c9ee05a1135c396bc664fc939c72da51",
+        "name":  "Hải Đăng",
+        "windows_playback_completed":  true
+    },
+    {
+        "sha256":  "3ea52d56b6327614773fe54e794ed7b896a8b7ca8ead4fd20434214990e89b7b",
+        "name":  "Mai Anh",
+        "windows_playback_completed":  true
+    },
+    {
+        "sha256":  "44abddb6999cc242025af744c7c43922f45478e143781574bd7e0a15df5f7c26",
+        "name":  "Thùy Dung",
+        "windows_playback_completed":  true
+    },
+    {
+        "sha256":  "2c54b737184f02d05f1123bcfbf66c8294e533dd2c7483969ccd4c7f3aa8a0e8",
+        "name":  "Quang Sơn",
+        "windows_playback_completed":  true
+    },
+    {
+        "sha256":  "805c308db67b653a2e246cb14279559a9dcb32915b8b5fbbeea7af83bd33496c",
+        "name":  "Thái Sơn",
+        "windows_playback_completed":  true
+    },
+    {
+        "sha256":  "3778df9f636d619439538f215d096b9e81a921d1e1b308a83884453972e39b5c",
+        "name":  "Ngọc Trân",
+        "windows_playback_completed":  true
+    }
+]

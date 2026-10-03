@@ -1,0 +1,4 @@
+vieneu==3.8.3
+fastapi
+uvicorn
+pip

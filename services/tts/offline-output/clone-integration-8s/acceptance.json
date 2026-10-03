@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "checks": {
+    "auth_plan_consent_csrf": true,
+    "precise_validation_errors": true,
+    "enrollment_idempotent_private_owned": true,
+    "synthesis_wav_idempotent_credit": true,
+    "revoke_release_cleanup_delete": true
+  },
+  "sample": {
+    "bytes": 768044,
+    "duration": 8,
+    "sampleRate": 48000,
+    "channels": 1,
+    "bitsPerSample": 16
+  },
+  "audio": {
+    "bytes": 453164,
+    "duration": 4.72,
+    "sampleRate": 48000,
+    "channels": 1,
+    "bitsPerSample": 16,
+    "sha256": "547dd783853ceee7bcb50eda117f7ceb803079c08133d56767dc70bcfe0f57df"
+  },
+  "fixturesRemoved": true
+}

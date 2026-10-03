@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "networkBlocked": true,
+  "isolation": "windows-firewall",
+  "blockedProbeConnections": 3,
+  "sampleDuration": 4.72,
+  "audioDuration": 4.08,
+  "sampleRate": 48000,
+  "speakerShape": [
+    192
+  ],
+  "codesShape": [
+    59,
+    16
+  ],
+  "sha256": "a45ea6d4a9d6faa970d137b94eeb6204ac1cc0c53c441aa6f00a14f7b4bcb04e",
+  "fixture": "Synthetic audio from consented bundled Hai Dang preset; not a real-user similarity evaluation"
+}

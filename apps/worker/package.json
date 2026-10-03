@@ -1,0 +1,21 @@
+{
+  "name": "@creatorai/worker",
+  "version": "0.1.0",
+  "private": true,
+  "engines": { "node": ">=22.9.0" },
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@creatorai/backend-api": "workspace:*",
+    "bullmq": "^5.12.11",
+    "ioredis": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.0",
+    "oxlint": "^1.86.0",
+    "ts-node-dev": "^2.0.0"
+  }
+}

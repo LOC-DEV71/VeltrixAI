@@ -1,0 +1,9 @@
+{
+  "combined_wav_pass": true,
+  "incompatible_format_rejected": true,
+  "bytes": 967724,
+  "duration": 10.08,
+  "sampleRate": 48000,
+  "channels": 1,
+  "bitsPerSample": 16
+}
