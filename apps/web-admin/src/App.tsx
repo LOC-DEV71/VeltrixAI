@@ -2,7 +2,7 @@ import viVN from 'antd/locale/vi_VN';
 import { errorMessage } from './userMessages';
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useBlocker, useLocation, useNavigate } from 'react-router-dom';
-import { adminRouteId, adminRoutes, adminPagePermissions, discardChangesDialog } from './adminRoutes';
+import { adminRouteId, adminRoutes, adminPagePermissions, adminLoginDestination, discardChangesDialog } from './adminRoutes';
 import { App as AntApp, Alert, Button, Input, Spin, ConfigProvider } from 'antd';
 import './App.css';
 import { Plans } from './Plans';
@@ -76,9 +76,7 @@ function AdminApp() {
   if (!user && location.pathname !== '/login') return <Navigate to="/login" replace state={{ returnTo: activeTab ? location.pathname + location.search : '/' }} />;
   if (!user) return <AdminLogin onLogin={() => void loadUser()} />;
   if (location.pathname === '/login') {
-    const returnTo = location.state?.returnTo;
-    const pathname = typeof returnTo === 'string' ? returnTo.split('?')[0] : '';
-    return <Navigate to={adminRouteId(pathname) ? returnTo : '/'} replace />;
+    return <Navigate to={adminLoginDestination(location.state?.returnTo)} replace />;
   }
   if (!activeTab) return <AdminShell user={user} active="" onNavigate={navigate} onLogout={() => void logout()}><EmptyState title="Không tìm thấy trang" description="Đường dẫn quản trị không tồn tại. Chọn một trang trong menu để tiếp tục." /></AdminShell>;
   function navigate(id: string) { const path = adminRoutes[id]; if (path && id !== activeTab) void routeNavigate(path); }

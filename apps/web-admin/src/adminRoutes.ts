@@ -8,6 +8,11 @@ export function adminRouteId(pathname: string) {
   const path = pathname.replace(/\/+$/, '') || '/';
   return Object.keys(adminRoutes).find(id => adminRoutes[id] === path);
 }
+export function adminLoginDestination(returnTo: unknown): string {
+  if (typeof returnTo !== 'string' || !returnTo.startsWith('/') || returnTo.startsWith('//')) return '/';
+  const pathname = returnTo.split(/[?#]/)[0];
+  return adminRouteId(pathname) ? returnTo : '/';
+}
 export const discardChangesDialog = {
   title: 'Hủy thay đổi chưa lưu?',
   content: 'Các thay đổi chưa lưu sẽ bị mất. Bạn có muốn tiếp tục?',
