@@ -27,21 +27,41 @@ dotenv.config();
 dotenv.config({ path: path.resolve(__dirname, '.env.local'), override: true });
 
 const baseUrl = process.env.VITE_APP_URL || 'https://veltrix.ai';
-const port = 3055;
+const appShell = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8');
+
+async function launchBrowser() {
+  if (process.env.VERCEL && process.platform === 'linux') {
+    const { default: serverlessChromium } = await import('@sparticuz/chromium');
+    return chromium.launch({
+      headless: true,
+      args: serverlessChromium.args,
+      executablePath: await serverlessChromium.executablePath(),
+    });
+  }
+  return chromium.launch({ headless: true });
+}
 
 async function run() {
-  console.log(`Bắt đầu chạy server tĩnh trên port ${port}...`);
   const app = express();
   
   // Phục vụ file tĩnh từ thư mục dist, nếu không tìm thấy fallback về index.html
+  // Serve the original SPA shell for every route, never an earlier prerender.
+  app.get(routes, (_req, res) => res.type('html').send(appShell));
   app.use(express.static(distDir));
   app.use((req, res) => {
-    res.sendFile(path.resolve(distDir, 'index.html'));
+    res.type('html').send(appShell);
   });
   
-  const server = app.listen(port, async () => {
+  const server = app.listen(0, '127.0.0.1');
+  let browser;
+  try {
+    await new Promise((resolve, reject) => {
+      server.once('listening', resolve);
+      server.once('error', reject);
+    });
+    const port = server.address().port;
     console.log('Khởi động Playwright...');
-    const browser = await chromium.launch({ headless: true });
+    browser = await launchBrowser();
     
     for (const route of routes) {
       console.log(`Đang prerender: ${route}`);
@@ -71,20 +91,23 @@ async function run() {
         console.log(`Đã lưu ${routePath}`);
       } catch (err) {
         console.error(`Lỗi khi prerender ${route}:`, err.message);
+        throw err;
       } finally {
         await page.close();
       }
     }
     
-    await browser.close();
-    server.close();
-    
     console.log('\nTạo Sitemap & Robots.txt...');
     generateSitemap(routes);
     generateRobotsTxt();
     console.log('Hoàn thành Prerender!');
-    process.exit(0);
-  });
+  } finally {
+    try {
+      await browser?.close();
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+    }
+  }
 }
 
 function generateSitemap(urls) {
@@ -120,4 +143,7 @@ Sitemap: ${baseUrl}/sitemap.xml
   fs.writeFileSync(path.join(distDir, 'robots.txt'), txt);
 }
 
-run();
+run().catch((err) => {
+  console.error('Prerender failed:', err.message);
+  process.exitCode = 1;
+});
