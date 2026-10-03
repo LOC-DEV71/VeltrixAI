@@ -25,6 +25,10 @@ Frontend mặc định trỏ API tới localhost nếu thiếu `VITE_API_URL`. D
 
 Build tạo HTML cho `/`, `/pricing`, `/chinh-sach-dieu-khoan`, `/developer`, `/docs`, `/voices`, cùng sitemap và robots.txt. Trên Linux Vercel, script dùng Chromium đóng gói bởi `@sparticuz/chromium`, chỉ phục vụ build; không đưa Chromium vào bundle client.
 
+Prerender giữ một browser context và một page xuyên suốt các route, rồi đóng browser ở cuối. Loại bỏ cờ `--single-process` của Chromium đóng gói để tránh crash khi chuyển hoặc đóng context. Không tạo/đóng context ẩn bằng `browser.newPage()` cho từng route.
+
+Workflow `.github/workflows/web-client-build.yml` chạy typecheck và build trên Linux với `VERCEL=1`, dùng Chromium đóng gói như nhánh build Vercel và kiểm tra đủ 6 file HTML. Workflow chỉ kiểm thử, không deploy. Runner Ubuntu không hoàn toàn giống build image của Vercel; kết quả deployment vẫn cần kiểm tra trên Vercel.
+
 Lỗi prerender làm build thất bại và script đóng browser/server khi kết thúc. Backend lỗi hoặc chưa cấu hình vẫn hiển thị trạng thái hiện có của ứng dụng; script không tạo dữ liệu thay thế.
 
 Để prerender trên máy local sau khi cài dependency:

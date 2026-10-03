@@ -1,0 +1,48 @@
+name: Web client build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web-client/**'
+      - '.github/workflows/web-client-build.yml'
+  pull_request:
+    paths:
+      - 'apps/web-client/**'
+      - '.github/workflows/web-client-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-client-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/web-client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/web-client/package-lock.json
+      - run: npm ci --include=dev
+      - run: npm run typecheck
+      - name: Build with the Linux Vercel Chromium path
+        run: npm run build
+        env:
+          VERCEL: '1'
+      - name: Check all prerendered routes
+        run: |
+          for route in index.html pricing/index.html chinh-sach-dieu-khoan/index.html developer/index.html docs/index.html voices/index.html; do
+            test -s "dist/$route"
+          done
+          test -s dist/sitemap.xml
+          test -s dist/robots.txt

@@ -34,7 +34,9 @@ async function launchBrowser() {
     const { default: serverlessChromium } = await import('@sparticuz/chromium');
     return chromium.launch({
       headless: true,
-      args: serverlessChromium.args,
+      // Single-process Chromium crashes when Playwright disposes contexts.
+      // Vercel's build machine supports separate renderer processes.
+      args: serverlessChromium.args.filter((arg) => arg !== '--single-process'),
       executablePath: await serverlessChromium.executablePath(),
     });
   }
@@ -62,10 +64,13 @@ async function run() {
     const port = server.address().port;
     console.log('Khởi động Playwright...');
     browser = await launchBrowser();
+    // Keep one context and page alive throughout the batch. browser.newPage()
+    // creates an implicit context that page.close() also destroys.
+    const context = await browser.newContext();
+    const page = await context.newPage();
     
     for (const route of routes) {
       console.log(`Đang prerender: ${route}`);
-      const page = await browser.newPage();
       
       try {
         await page.goto(`http://localhost:${port}${route}`, { waitUntil: 'networkidle' });
@@ -92,8 +97,6 @@ async function run() {
       } catch (err) {
         console.error(`Lỗi khi prerender ${route}:`, err.message);
         throw err;
-      } finally {
-        await page.close();
       }
     }
     
