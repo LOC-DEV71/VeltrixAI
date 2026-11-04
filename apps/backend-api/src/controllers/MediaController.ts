@@ -20,6 +20,8 @@ export async function playAudio(req: Request, res: Response) {
       return (await provider.download(asset.publicId)).audio;
     });
     res.setHeader('Cache-Control', 'private, no-store');
+    // Played by <audio> in the web app (another port/subdomain): helmet's same-origin CORP would block it.
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
     res.setHeader('Content-Type', 'audio/wav');
     res.setHeader('Accept-Ranges', 'bytes');
     res.setHeader('X-Content-Type-Options', 'nosniff');

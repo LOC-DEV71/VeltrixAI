@@ -2,7 +2,8 @@ import {useEffect, useRef, useState} from 'react';
 import {io} from 'socket.io-client';
 import {App, Badge, Button, Empty, List, Popover, Tag} from 'antd';
 import {Bell} from 'lucide-react';
-import {billingDate, billingNumber} from './billingFormatting';
+import {billingNumber} from './billingFormatting';
+import {AdminTime} from './components/AdminTime';
 import {errorMessage} from './userMessages';
 
 export function AdminBillingBell({onOrders}: {onOrders: () => void}) {
@@ -30,6 +31,11 @@ export function AdminBillingBell({onOrders}: {onOrders: () => void}) {
       seen.add(event.eventId);
       if (seen.size > 500) seen.delete(seen.values().next().value!);
       window.dispatchEvent(new Event('admin-billing-updated'));
+      if(event.refundStatus){
+        if(!isOpen.current)setUnread(count=>count+1);
+        notification.info({message:event.refundStatus==='COMPLETED'?'VNPay xác nhận hoàn tiền':event.refundStatus==='REJECTED'?'VNPay từ chối hoàn tiền':'Hoàn tiền đang đối soát',description:`${event.planName} · ${billingNumber(event.amount)} ₫${event.mode==='sandbox'?' · Thử nghiệm':''}`,duration:6});
+        void load();return;
+      }
       if (event.status !== 'PAID') return;
       if (!isOpen.current) setUnread(count => count + 1);
       notification.success({message: 'Có đăng ký gói mới', description: `${event.planName} · ${billingNumber(event.amount)} ₫${event.mode === 'sandbox' ? ' · Giao dịch thử nghiệm' : ''}`, duration: 6});
@@ -45,8 +51,8 @@ export function AdminBillingBell({onOrders}: {onOrders: () => void}) {
       {error && <p role="alert">{error}</p>}
       <List style={{maxHeight: 360, overflowY: 'auto'}} dataSource={items} locale={{emptyText: <Empty description="Chưa có thanh toán thành công"/>}} renderItem={order =>
         <List.Item><button style={{border: 0, background: 'none', cursor: 'pointer', textAlign: 'left', width: '100%'}} onClick={() => {setOpen(false); onOrders();}}>
-          <strong>{order.planName} · {billingNumber(order.amount)} ₫</strong>
-          <div>{billingDate(order.paidAt)}</div><small>{order.mode === 'sandbox' ? 'Thử nghiệm' : 'Thực tế'} · {order._id}</small>
+          <strong>{order.planName} · {billingNumber(order.amount)} ₫</strong>{order.refundedAt?<Tag>Đã hoàn tiền</Tag>:order.refundLockedAt?<Tag>Đang đối soát hoàn tiền</Tag>:null}
+          <div><AdminTime value={order.paidAt}/></div><small>{order.mode === 'sandbox' ? 'Thử nghiệm' : 'Thực tế'} · {order._id}</small>
         </button></List.Item>}/>
       <Button type="link" onClick={() => {setOpen(false); onOrders();}}>Xem toàn bộ đơn hàng</Button>
     </div>

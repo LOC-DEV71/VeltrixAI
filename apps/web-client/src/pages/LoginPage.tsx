@@ -3,17 +3,28 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
+import {isFreeIpDenied} from '../utils/freeIpPolicy';
+import {allowedSupportReturn} from '../utils/supportLoginReturn';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [challengeId, setChallengeId] = useState('');
   const [menuOpen] = useState(false);
-  const { loginOtp, verifyOtp, loginGoogle } = useAuth();
+  const { user, loading, loginOtp, verifyOtp, loginGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const returnTo = location.state?.returnTo;
   const destination = typeof returnTo === 'string' && returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : '/workspace';
+  const supportReturn = allowedSupportReturn(new URLSearchParams(location.search).get('supportReturnTo'));
+  function finishLogin() {
+    if (supportReturn) window.location.replace(supportReturn);
+    else navigate(destination);
+  }
+
+  useEffect(() => {
+    if (user && !loading && supportReturn) window.location.replace(supportReturn);
+  }, [user, loading, supportReturn]);
 
   const handleSendOtp = async () => {
     if (!email) {
@@ -37,9 +48,9 @@ export const LoginPage: React.FC = () => {
     try {
       await verifyOtp(email, challengeId, code, 'LOGIN');
       toast.success('Đăng nhập thành công');
-      navigate(destination);
+      finishLogin();
     } catch (e: any) {
-      toast.error('Sai mã OTP');
+      if (!isFreeIpDenied(e)) toast.error(e.message || 'Không thể xác thực mã OTP.');
     }
   };
 
@@ -48,9 +59,9 @@ export const LoginPage: React.FC = () => {
       try {
         await loginGoogle(credentialResponse.access_token);
         toast.success('Đăng nhập Google thành công');
-        navigate(destination);
+        finishLogin();
       } catch (e: any) {
-        toast.error('Đăng nhập Google thất bại');
+        if (!isFreeIpDenied(e)) toast.error(e.message || 'Đăng nhập Google thất bại');
       }
     },
     onError: () => {

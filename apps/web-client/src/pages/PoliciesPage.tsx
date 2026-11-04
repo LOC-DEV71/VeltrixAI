@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, ChevronRight, CreditCard, Database, FileText, Info, Scale, Search, Shield, Sparkles, X } from 'lucide-react';
 import content from '../content/policies.json';
 import { PlanCatalogue } from '../components/PlanCatalogue';
+import {supportUrl} from '../utils/supportUrl';
 import { useSEO } from '../hooks/useSEO';
 
 const groups = [
@@ -99,8 +100,8 @@ export const PoliciesPage = () => {
       <nav aria-label="Điều hướng chính" className="flex gap-4 text-sm font-medium"><Link to="/docs" className="text-slate-500 hover:text-indigo-600">Hướng dẫn</Link><Link to="/workspace" className="hidden sm:block text-indigo-600">Mở Workspace</Link></nav>
     </div></header>
     <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-10">
-      <div className="mb-8 space-y-3"><p className="text-xs uppercase tracking-widest font-bold text-indigo-600">Veltrix AI</p><h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">Trung tâm Chính sách & Điều khoản</h1><p className="max-w-3xl text-slate-500 leading-relaxed">Tài khoản, gói dịch vụ, Credit, sử dụng AI và quyền riêng tư. Chọn từng tài liệu để đọc các quy định áp dụng cho bạn.</p><div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500"><span>Cập nhật lần cuối: <time dateTime="2026-10-02">{content.updatedAt}</time></span><span>Có hiệu lực từ: <time dateTime="2026-10-02">{content.effectiveAt}</time></span></div></div>
-      <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3 text-sm text-amber-900"><Info size={18} className="shrink-0 mt-0.5" /><p>Một số thông tin đang được hoàn thiện: Credit gói năm, thời hạn yêu cầu hoàn tiền, gia hạn mặc định và thông tin đơn vị vận hành. Email liên hệ hiện là địa chỉ minh họa, chưa phải kênh tiếp nhận yêu cầu.</p></div>
+      <div className="mb-8 space-y-3"><p className="text-xs uppercase tracking-widest font-bold text-indigo-600">Veltrix AI</p><h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">Trung tâm Chính sách & Điều khoản</h1><p className="max-w-3xl text-slate-500 leading-relaxed">Tài khoản, gói dịch vụ, Credit, sử dụng AI và quyền riêng tư. Chọn từng tài liệu để đọc các quy định áp dụng cho bạn.</p><div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500"><span>Cập nhật lần cuối: <time dateTime="2026-10-07">{content.updatedAt}</time></span><span>Có hiệu lực từ: <time dateTime="2026-10-07">{content.effectiveAt}</time></span></div></div>
+      <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3 text-sm text-amber-900"><Info size={18} className="shrink-0 mt-0.5" /><p>Một số thông tin đang được hoàn thiện: Credit gói năm, gia hạn mặc định và thông tin đơn vị vận hành. Email liên hệ hiện là địa chỉ minh họa, chưa phải kênh tiếp nhận yêu cầu.</p></div>
       <div className="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6 lg:gap-10 items-start">
         <aside className="lg:sticky lg:top-24 space-y-5">
           <div className="relative"><Search size={18} className="absolute left-3 top-3.5 text-slate-400" aria-hidden="true" /><input aria-label="Tìm kiếm chính sách" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm kiếm chính sách..." className="w-full bg-white rounded-xl border border-slate-200 pl-10 pr-10 py-3 text-sm focus:outline-2 focus:outline-indigo-500" />{query && <button onClick={() => setQuery('')} type="button" aria-label="Xóa tìm kiếm" className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-700"><X size={16} /></button>}</div>
@@ -124,6 +125,7 @@ export const PoliciesPage = () => {
             {['credits', 'credit-refunds'].includes(active.id) && <p className="rounded-xl bg-indigo-50 p-4 text-sm text-indigo-900">Phí TTS tính theo mỗi nhóm 100 ký tự, làm tròn lên. Đơn giá, thời hạn và cộng dồn Credit theo phiên bản cấu hình của gói; yêu cầu đã tạo giữ nguyên giá. Các con số trong ví dụ dưới đây chỉ minh họa.</p>}
             {['plans', 'credits', 'credit-refunds'].includes(active.id) && <PlanCatalogue />}
             {active.id === 'contact' && <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Email bên dưới chỉ để minh họa giao diện và chưa tiếp nhận thư hỗ trợ. Tên đơn vị vận hành và địa chỉ sẽ được bổ sung khi công bố.</p>}
+            {['contact', 'complaints'].includes(active.id) && supportUrl && <a href={supportUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-indigo-600 hover:underline">Liên hệ hỗ trợ</a>}
             {active.sections.length > 1 && <nav aria-label="Trong tài liệu này" className="rounded-xl bg-slate-50 p-4"><p className="text-xs font-semibold text-slate-500 mb-2">TRONG TÀI LIỆU NÀY</p><ul className="space-y-2">{active.sections.map(section => <li key={section.number}><a href={`#policy-${section.number}`} className="text-sm text-indigo-600 hover:underline">{section.title}</a></li>)}</ul></nav>}
             {active.sections.map(section => <section key={section.number} id={`policy-${section.number}`} className="scroll-mt-24 space-y-4"><h3 className="text-lg font-semibold text-slate-900">{section.title}</h3><PolicyText body={section.body} /></section>)}
           </>}

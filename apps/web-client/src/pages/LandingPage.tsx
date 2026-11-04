@@ -6,6 +6,9 @@ import { Sparkles, Mic, Video, Layout, ArrowRight, Layers, Type, Image as ImageI
 import { cn } from '../utils/cn';
 import { useAuth } from '../contexts/AuthContext';
 import { PlanCards } from '../components/PlanCards';
+import {supportUrl} from '../utils/supportUrl';
+import {developerUrl} from '../utils/developerUrl';
+import {developerApiUrl} from '../utils/developerApiUrl';
 import { Button } from '../components/ui/Button';
 import { useSEO } from '../hooks/useSEO';
 
@@ -580,7 +583,7 @@ const Footer = () => {
           <div>
             <h4 className="font-bold text-slate-900 mb-4">Tài Nguyên</h4>
             <ul className="space-y-3">
-              <li><a href="/developer" className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">Dành cho Developer</a></li>
+              <li><a href={developerUrl} className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">Dành cho Developer</a></li>
               <li><a href="/docs" className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">Tài liệu Hướng dẫn</a></li>
               <li><a href="/chinh-sach-dieu-khoan" className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">Chính sách Bảo mật</a></li>
             </ul>
@@ -622,11 +625,11 @@ export const LandingPage = () => {
           "name": "Veltrix AI",
           "url": `${baseUrl}/`,
           "logo": `${baseUrl}/logo-full.png`,
-          "contactPoint": {
+          ...(supportUrl ? {"contactPoint": {
             "@type": "ContactPoint",
             "contactType": "customer support",
-            "email": "support@veltrix.ai"
-          }
+            "url": supportUrl
+          }} : {})
         }
       ]
     }
@@ -679,7 +682,7 @@ export const LandingPage = () => {
                 <div className="mt-10 flex flex-wrap items-center gap-4">
                   <Button 
                     size="lg" 
-                    onClick={() => navigate('/developer')} 
+                    onClick={() => window.location.assign(developerUrl)}
                     className="gap-2 rounded-2xl px-8 py-4 h-auto shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
                   >
                     Khám phá API
@@ -711,19 +714,27 @@ export const LandingPage = () => {
                   {/* Code Content */}
                   <div className="p-6 text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed">
                     <pre><code className="language-typescript">
-<span className="text-pink-400">const</span> response = <span className="text-pink-400">await</span> <span className="text-blue-400">fetch</span>(<span className="text-green-400">'https://api.veltrix.ai/v1/audio/speech'</span>, {'{'}
+<span className="text-slate-500">// Chạy trên máy chủ; lấy VOICE_ID từ API /voices.</span>
+<br/><span className="text-pink-400">const</span> response = <span className="text-pink-400">await</span> <span className="text-blue-400">fetch</span>(<span className="text-green-400">'{developerApiUrl}/tts/jobs'</span>, {'{'}
 <br/>  method: <span className="text-green-400">'POST'</span>,
 <br/>  headers: {'{'}
 <br/>    <span className="text-green-400">'Authorization'</span>: <span className="text-green-400">'Bearer YOUR_API_KEY'</span>,
 <br/>    <span className="text-green-400">'Content-Type'</span>: <span className="text-green-400">'application/json'</span>,
+<br/>    <span className="text-green-400">'Idempotency-Key'</span>: <span className="text-green-400">'loi-doc-001'</span>,
 <br/>  {'}'},
 <br/>  body: <span className="text-blue-400">JSON</span>.<span className="text-yellow-200">stringify</span>({'{'}
 <br/>    text: <span className="text-green-400">'Xin chào, đây là giọng đọc từ Veltrix AI'</span>,
-<br/>    voice_id: <span className="text-green-400">'vn-hn-female-1'</span>
+<br/>    voiceId: <span className="text-green-400">'VOICE_ID'</span>
 <br/>  {'}'})
 <br/>{'}'});
 <br/>
-<br/><span className="text-pink-400">const</span> audioBuffer = <span className="text-pink-400">await</span> response.<span className="text-yellow-200">arrayBuffer</span>();
+<br/><span className="text-pink-400">const</span> payload = <span className="text-pink-400">await</span> response.<span className="text-yellow-200">json</span>();
+<br/><span className="text-pink-400">if</span> (!response.ok || !payload.success) {'{'}
+<br/>  <span className="text-pink-400">throw new</span> <span className="text-yellow-200">Error</span>(payload.error?.code || <span className="text-green-400">'API_ERROR'</span>);
+<br/>{'}'}
+<br/><span className="text-pink-400">const</span> jobId = payload.data.jobId;
+<br/><span className="text-slate-500">// GET /tts/jobs/JOB_ID mỗi 3–5 giây.</span>
+<br/><span className="text-slate-500">// Khi COMPLETED: GET /tts/jobs/JOB_ID/audio với cùng token.</span>
                     </code></pre>
                   </div>
                   
@@ -741,8 +752,8 @@ export const LandingPage = () => {
                     <CheckCircle2 className="text-green-600 w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-800">Status: 200 OK</p>
-                    <p className="text-[10px] text-slate-500">Audio generated in 0.8s</p>
+                    <p className="text-xs font-bold text-slate-800">Tác vụ mới: 202 Accepted</p>
+                    <p className="text-[10px] text-slate-500">Theo dõi tác vụ rồi tải WAV khi hoàn tất</p>
                   </div>
                 </motion.div>
               </div>

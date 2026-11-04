@@ -1,8 +1,11 @@
+import {useSearchParams} from 'react-router-dom';
+import {AdminTime,RenderAdminTime} from './components/AdminTime';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, App, Button, Checkbox, ConfigProvider, Drawer, Empty, Form, Input, InputNumber, Modal, Pagination, Segmented, Select, Skeleton, Table, Tooltip, Typography } from 'antd';
 import { ArrowRight, CalendarDays, Check, Coins, Gift, Hourglass, Info, LockKeyhole, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sparkles, UnlockKeyhole, UserCheck, Users, UserX, Wallet } from 'lucide-react';
 import { errorMessage } from './userMessages';
 import './UserManagement.css';
+import {IpAccountMonitor} from './IpAccountMonitor';
 
 const PAGE_SIZE = 10;
 const PLAN_NAMES: Record<string, string> = { FREE: 'Free', BASIC_STUDENT: 'Basic Student', PLUS: 'Plus Creator', PRO: 'Pro' };
@@ -12,7 +15,7 @@ const dateInput = (value?: string) => new Date(value && Number.isFinite(Date.par
 const planName = (value: string) => PLAN_NAMES[value] || value || 'Free';
 type UserRow = { _id: string; email: string; displayName?: string; status: string; plan: string; createdAt?: string; controlRevision?: number; planPeriod?: { billingCycle: string; startsAt: string; endsAt: string } };
 type WalletData = { _id: string; bucket: string; available: number; reserved: number };
-type Details = { user: UserRow; wallets: WalletData[]; subscriptions: any[]; subscriptionsMeta?: { page: number; total: number }; recentJobs: any[] };
+type Details = { user: UserRow; wallets: WalletData[]; subscriptions: any[]; subscriptionsMeta?: { page: number; total: number }; recentJobs: any[]; ipNetworks?: {_id: string; ip: string; month: string; suspicious: boolean}[] };
 type Action = 'GRANT' | 'PLAN' | 'STATUS';
 
 async function api(path: string, body?: unknown, method = 'GET', key?: string, signal?: AbortSignal) {
@@ -45,6 +48,7 @@ function LoadingRows() { return <div className="um-loading" role="status" aria-l
 
 export function UserManagement({ canManage = true }: { canManage?: boolean }) {
   const { message } = App.useApp();
+  const [searchParams,setSearchParams]=useSearchParams();
   const [users, setUsers] = useState<UserRow[]>([]), [total, setTotal] = useState(0), [page, setPage] = useState(1);
   const [search, setSearch] = useState(''), [status, setStatus] = useState('ALL'), [loading, setLoading] = useState(true), [listError, setListError] = useState(''), [reload, setReload] = useState(0);
   const [selected, setSelected] = useState<string | null>(null), [details, setDetails] = useState<Details | null>(null), [detailLoading, setDetailLoading] = useState(false), [detailError, setDetailError] = useState('');
@@ -87,8 +91,9 @@ export function UserManagement({ canManage = true }: { canManage?: boolean }) {
     } catch (e) { if (!controller.signal.aborted) setDetailError(errorMessage(e)); }
     finally { if (!controller.signal.aborted) setDetailLoading(false); }
   }, []);
+  useEffect(()=>{const id=searchParams.get('userId');if(id&&/^[a-f0-9]{24}$/i.test(id)){setDetails(null);setSelected(id);void loadDetails(id);}},[searchParams,loadDetails]);
   function openUser(id: string) { setDetails(null); setSelected(id); void loadDetails(id); }
-  function closeUser() { detailRequest.current?.abort(); setSelected(null); setDetails(null); }
+  function closeUser() { detailRequest.current?.abort(); setSelected(null); setDetails(null); if(searchParams.has('userId')){const next=new URLSearchParams(searchParams);next.delete('userId');setSearchParams(next,{replace:true});} }
   function openAction(next: Action, targetTier?: string) {
     if (!canManage || !details || detailLoading) return;
     setActionError(''); setDirty(false); setDiscarding(false); setConfirmed(false);
@@ -143,7 +148,7 @@ export function UserManagement({ canManage = true }: { canManage?: boolean }) {
   ];
   const columns = [
     { title: 'STT', width: 60, render: (_: unknown, __: UserRow, index: number) => <span className="um-row-number">{String((page - 1) * PAGE_SIZE + index + 1).padStart(2, '0')}</span> },
-    { title: 'Người dùng', width: 290, render: (_: unknown, user: UserRow) => <UserIdentity user={user} /> },
+    { title: 'Người dùng', width: 290, render: (_: unknown, user: UserRow) => <div><UserIdentity user={user} /><Typography.Text className="um-list-user-id" copyable={{text:user._id,tooltips:['Sao chép ID','Đã sao chép']}}>ID: {user._id}</Typography.Text></div> },
     { title: 'Tên đăng nhập', width: 170, render: (_: unknown, user: UserRow) => <Tooltip title={user.email}><span className="um-username">@{(user.email || '').split('@')[0] || '—'}</span></Tooltip> },
     { title: 'Gói hiện tại', dataIndex: 'plan', width: 160, render: (value: string) => <PlanBadge tier={value} /> },
     { title: 'Trạng thái', dataIndex: 'status', width: 145, render: (value: string) => <UserStatus status={value} /> },
@@ -154,20 +159,22 @@ export function UserManagement({ canManage = true }: { canManage?: boolean }) {
   return <ConfigProvider theme={{ token: { colorPrimary: '#4F46E5', colorText: '#172033', colorTextSecondary: '#777587', colorBorder: '#E8EBF2', borderRadius: 12, fontFamily: '"Be Vietnam Pro", sans-serif', controlHeight: 42 } }}>
     <div className="users-stitch">
       <header className="um-page-heading"><div><span>QUẢN LÝ TÀI KHOẢN</span><h1>Người dùng</h1><p>Tra cứu tài khoản, quyền truy cập và lịch sử sử dụng.</p></div><Button disabled={loading} icon={<RefreshCw size={16} />} onClick={() => setReload(value => value + 1)}>Làm mới</Button></header>
+      <IpAccountMonitor />
       <div className="um-stats">{kpis.map(kpi => <section className={`um-stat ${kpi.tone}`} key={kpi.label}><div><span>{kpi.label}</span><small>{kpi.note}</small></div><span className="um-stat-icon"><kpi.icon size={22} /></span><div className="um-stat-value">{loading ? <Skeleton.Input active size="small" /> : <><strong>{listError ? '—' : number(kpi.value)}</strong><span>tài khoản</span></>}</div></section>)}</div>
       <section className="um-list" aria-label="Danh sách người dùng">
-        <div className="um-toolbar"><Input aria-label="Tìm người dùng" prefix={<Search size={18} />} placeholder="Tìm email hoặc tên người dùng..." allowClear value={search} onChange={event => { setSearch(event.target.value); setPage(1); setLoading(true); }} /><div className="um-filter" aria-label="Lọc trạng thái">{[{ value: 'ALL', label: 'Tất cả' }, { value: 'ACTIVE', label: 'Hoạt động' }, { value: 'BANNED', label: 'Bị khóa' }].map(option => <button key={option.value} aria-pressed={status === option.value} className={status === option.value ? 'selected' : ''} onClick={() => { setStatus(option.value); setPage(1); setLoading(true); }}>{option.label}</button>)}</div></div>
+        <div className="um-toolbar"><Input aria-label="Tìm người dùng" prefix={<Search size={18} />} placeholder="Tìm email, tên hoặc ID người dùng..." allowClear value={search} onChange={event => { setSearch(event.target.value); setPage(1); setLoading(true); }} /><div className="um-filter" aria-label="Lọc trạng thái">{[{ value: 'ALL', label: 'Tất cả' }, { value: 'ACTIVE', label: 'Hoạt động' }, { value: 'BANNED', label: 'Bị khóa' }].map(option => <button key={option.value} aria-pressed={status === option.value} className={status === option.value ? 'selected' : ''} onClick={() => { setStatus(option.value); setPage(1); setLoading(true); }}>{option.label}</button>)}</div></div>
         {listError ? <div className="um-error"><Alert showIcon type="error" title="Không thể tải người dùng" description={listError} action={<Button onClick={() => setReload(value => value + 1)}>Thử lại</Button>} /></div> : loading ? <LoadingRows /> : <Table<UserRow> rowKey="_id" columns={columns} dataSource={users} pagination={false} scroll={{ x: 960 }} locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<><strong>Không tìm thấy tài khoản</strong><p>Thử một email khác hoặc xóa bộ lọc hiện tại.</p><Button onClick={() => { setSearch(''); setStatus('ALL'); setPage(1); }}>Xóa bộ lọc</Button></>} /> }} />}
         <div className="um-list-footer"><span>{loading ? 'Đang tải dữ liệu...' : listError ? 'Dữ liệu chưa tải được' : <>Hiển thị <strong>{total ? (page - 1) * PAGE_SIZE + 1 : 0} – {Math.min(page * PAGE_SIZE, total)}</strong> trong tổng số <strong>{number(total)}</strong> tài khoản</>}</span><Pagination current={page} total={total} pageSize={PAGE_SIZE} showSizeChanger={false} disabled={loading || !!listError} onChange={value => { setPage(value); setLoading(true); }} /></div>
       </section>
       {!action && <Drawer className="stitch-user-drawer" placement="right" size={920} title={<div className="um-drawer-title"><Users size={21} /><strong>Chi tiết người dùng</strong></div>} open={!!selected} onClose={closeUser} footer={<div className="um-drawer-footer"><span><ShieldCheck size={16} />{canManage ? 'Thao tác quản trị được ghi vào nhật ký hệ thống' : 'Bạn đang xem với quyền chỉ đọc'}</span><Button onClick={closeUser}>Đóng</Button></div>}>
         {detailLoading ? <div className="um-detail-loading" role="status" aria-label="Đang tải chi tiết người dùng"><Skeleton active avatar paragraph={{ rows: 3 }} /><Skeleton active paragraph={{ rows: 5 }} /><Skeleton active paragraph={{ rows: 5 }} /></div> : detailError ? <div className="um-error"><Alert type="error" showIcon title="Không thể tải chi tiết tài khoản" description={detailError} action={<Button onClick={() => selected && void loadDetails(selected)}>Thử lại</Button>} /></div> : details && <>
-          <div className="um-user-header"><div className="um-user-profile"><UserIdentity user={details.user} /><div className="um-user-badges"><UserStatus status={details.user.status} /><PlanBadge tier={details.user.plan} /></div></div><div className="um-user-id"><Typography.Text copyable={{ text: details.user._id, tooltips: ['Sao chép ID', 'Đã sao chép'] }}>ID: {details.user._id}</Typography.Text><span>Tham gia {date(details.user.createdAt)}</span></div>{canManage && <div className="um-access"><ShieldCheck size={19} /><p>{details.user.status === 'ACTIVE' ? 'Khóa quyền truy cập của tài khoản, giữ lại dữ liệu và lịch sử.' : 'Tài khoản đang bị khóa. Mở khóa để khôi phục quyền truy cập.'}</p><Button danger={details.user.status === 'ACTIVE'} icon={details.user.status === 'ACTIVE' ? <LockKeyhole size={15} /> : <UnlockKeyhole size={15} />} onClick={() => openAction('STATUS')}>{details.user.status === 'ACTIVE' ? 'Khóa tài khoản' : 'Mở khóa'}</Button></div>}</div>
+          <div className="um-user-header"><div className="um-user-profile"><UserIdentity user={details.user} /><div className="um-user-badges"><UserStatus status={details.user.status} /><PlanBadge tier={details.user.plan} /></div></div><div className="um-user-id"><Typography.Text copyable={{ text: details.user._id, tooltips: ['Sao chép ID', 'Đã sao chép'] }}>ID: {details.user._id}</Typography.Text><span>Tham gia <AdminTime value={details.user.createdAt}/></span></div>{canManage && <div className="um-access"><ShieldCheck size={19} /><p>{details.user.status === 'ACTIVE' ? 'Khóa quyền truy cập của tài khoản, giữ lại dữ liệu và lịch sử.' : 'Tài khoản đang bị khóa. Mở khóa để khôi phục quyền truy cập.'}</p><Button danger={details.user.status === 'ACTIVE'} icon={details.user.status === 'ACTIVE' ? <LockKeyhole size={15} /> : <UnlockKeyhole size={15} />} onClick={() => openAction('STATUS')}>{details.user.status === 'ACTIVE' ? 'Khóa tài khoản' : 'Mở khóa'}</Button></div>}</div>
           <div className="um-detail-content">
+            <section className="um-detail-section"><h2>IP đã liên kết · 10 liên kết gần nhất</h2>{details.ipNetworks?.length ? details.ipNetworks.map(network => <p key={network._id}><Button type="link" onClick={() => {closeUser(); setSearchParams({ip: network.ip});}}>{network.ip}</Button> · Tháng {network.month} {network.suspicious && <span className="um-badge">Nghi vấn spam tài khoản</span>}</p>) : <p>Chưa có liên kết IP Free được ghi nhận.</p>}</section>
             <section className="um-detail-section"><div className="um-section-heading"><h2><i />Số dư Credit</h2>{canManage && <Button type="primary" icon={<Gift size={16} />} onClick={() => openAction('GRANT')}>Tặng Credit</Button>}</div><div className="um-wallets"><div className="um-wallet"><header>CREDIT KHẢ DỤNG<Wallet size={18} /></header><strong>{number(available)} <small>Credit</small></strong><div className="um-wallet-breakdown">{wallets.length ? wallets.map(wallet => <span key={wallet._id}>{wallet.bucket === 'FREE' ? 'Được cấp theo gói' : wallet.bucket === 'PAID' ? 'Mua / quản trị viên tặng' : wallet.bucket}: <b>{number(wallet.available)}</b></span>) : <span>Tài khoản chưa có ví Credit.</span>}</div></div><div className="um-wallet pending"><header>CREDIT TẠM GIỮ<Hourglass size={18} /></header><strong>{number(reserved)} <small>Credit</small></strong><p><Info size={15} />Dành cho các tác vụ đang xử lý, chưa quyết toán.</p></div></div><p className="um-caption">Khả dụng: dùng được ngay. Tạm giữ: sẽ được trừ hoặc hoàn lại khi tác vụ kết thúc.</p></section>
             <section className="um-detail-section"><div className="um-section-heading"><h2><i />Gói & thời hạn sử dụng</h2>{canManage && <Button icon={<SlidersHorizontal size={16} />} onClick={() => openAction('PLAN')}>Cập nhật gói</Button>}</div><p className="um-caption">Tài khoản có thể sở hữu nhiều gói còn hạn. Nhãn “Đang dùng” thể hiện quyền lợi được chọn hiện tại.</p><Table size="small" rowKey="_id" dataSource={details.subscriptions || []} scroll={{ x: 750 }} pagination={{ current: details.subscriptionsMeta?.page || 1, total: details.subscriptionsMeta?.total || details.subscriptions?.length || 0, pageSize: PAGE_SIZE, showSizeChanger: false, hideOnSinglePage: true, onChange: value => selected && void loadDetails(selected, value) }} locale={{ emptyText: 'Chưa có lịch sử gói được cấp hoặc mua.' }} columns={[
               { title: 'Gói', dataIndex: 'tier', width: 145, render: (value: string) => <PlanBadge tier={value} /> },
-              { title: 'Trạng thái', dataIndex: 'status', width: 140, render: (value: string, row: any) => <div className="um-sub-status"><span className={`um-badge term-${value.toLowerCase()}`}>{value === 'ACTIVE' ? 'Còn hạn' : value === 'EXPIRED' ? 'Hết hạn' : 'Chưa bắt đầu'}</span>{(row.selected || row.provider === 'ADMIN' && row.tier === details.user.plan) && <span className="um-selected"><Check size={12} />Đang dùng</span>}</div> },
+              { title: 'Trạng thái', dataIndex: 'status', width: 140, render: (value: string, row: any) => <div className="um-sub-status"><span className={`um-badge term-${value.toLowerCase()}`}>{value === 'REFUNDED' ? 'Đã hoàn tiền' : value === 'REFUND_PENDING' ? 'Đang đối soát hoàn tiền' : value === 'ACTIVE' ? 'Còn hạn' : value === 'EXPIRED' ? 'Hết hạn' : 'Chưa bắt đầu'}</span>{(row.selected || row.provider === 'ADMIN' && row.tier === details.user.plan) && <span className="um-selected"><Check size={12} />Đang dùng</span>}</div> },
               { title: 'Nguồn kích hoạt', dataIndex: 'provider', width: 155, render: (value: string) => value === 'VNPAY' ? 'Thanh toán VNPay' : value === 'ADMIN' ? 'Quản trị viên cấp' : value },
               { title: 'Chu kỳ', dataIndex: 'billingCycle', width: 95, render: (value: string) => value === 'YEARLY' ? '12 tháng' : value === 'MONTHLY' ? '1 tháng' : 'Không thời hạn' },
               { title: 'Ngày bắt đầu', dataIndex: 'startsAt', width: 110, render: (value: string) => date(value) },
@@ -177,7 +184,7 @@ export function UserManagement({ canManage = true }: { canManage?: boolean }) {
               { title: 'Loại tác vụ', dataIndex: 'type', render: (value: string) => value || '—' },
               { title: 'Trạng thái', dataIndex: 'status', render: (value: string) => <span className={`um-badge job-${value?.toLowerCase()}`}>{({ SUCCEEDED: 'Hoàn tất', COMPLETED: 'Hoàn tất', FAILED: 'Thất bại', RUNNING: 'Đang xử lý', QUEUED: 'Đang chờ', CANCELLED: 'Đã hủy' } as Record<string, string>)[value] || value || '—'}</span> },
               { title: 'Credit dự kiến', dataIndex: ['payload', 'cost'], render: (value: number) => number(value) },
-              { title: 'Ngày tạo', dataIndex: 'createdAt', render: (value: string) => date(value, true) },
+              { title: 'Ngày tạo', dataIndex: 'createdAt', render: RenderAdminTime },
             ]} /></section>
           </div>
         </>}

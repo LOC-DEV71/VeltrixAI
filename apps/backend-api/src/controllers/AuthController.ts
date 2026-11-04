@@ -1,18 +1,23 @@
 import { Request, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
-import { User } from '../models/User';
 import { Session } from '../models/Session';
 import { OtpChallenge } from '../models/OtpChallenge';
-import { Workspace } from '../models/Workspace';
-import { Project } from '../models/Project';
 import { generateOpaqueToken, hashSecret, hmacToken } from '../utils/crypto';
 import { signAccessToken } from '../utils/jwt';
 import { randomUUID } from 'crypto';
 import { CreditService } from '../services/CreditService';
 import { generateCsrfToken } from '../middlewares/csrfMiddleware';
+import {admitVerifiedAccount, FreeIpError, FREE_IP_MESSAGE} from '../services/FreeIpPolicy';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const OTP_SECRET = process.env.OTP_SECRET || 'dev-otp-secret';
+
+function policyError(error: unknown, res: Response) {
+  if (!(error instanceof FreeIpError)) return false;
+  res.status(error.status).json({success: false, error: {code: error.code,
+    ...(error.code === 'FREE_IP_ACCOUNT_LIMIT' ? {message: FREE_IP_MESSAGE} : {})}});
+  return true;
+}
 
 const setCookies = (res: Response, accessToken: string, refreshToken: string) => {
   const isProd = process.env.NODE_ENV === 'production';
@@ -60,20 +65,7 @@ export const googleLogin = async (req: Request, res: Response) => {
     const email = payload.email.toLowerCase().trim();
     const sub = payload.sub;
 
-    let user = await User.findOne({ email });
-    if (user) {
-      if (user.googleId !== sub) {
-        return res.status(400).json({ success: false, error: { code: 'ACCOUNT_EXISTS_REQUIRE_LINK', message: 'Email registered via OTP. Link required.' } });
-      }
-    } else {
-      user = await User.create({
-        email,
-        googleId: sub,
-        displayName: payload.name || email.split('@')[0],
-      });
-      const defaultWorkspace = await Workspace.create({ ownerId: user._id, name: 'My Workspace' });
-      await Project.create({ workspaceId: defaultWorkspace._id, name: 'Dự án đầu tiên' });
-    }
+    const user = await admitVerifiedAccount(req, {email, googleId: sub, displayName: payload.name, attempt: hashSecret(credential)});
 
     // Try to grant monthly credits
     try {
@@ -106,8 +98,9 @@ export const googleLogin = async (req: Request, res: Response) => {
 
     res.json({ success: true, data: user });
   } catch (error) {
+    if (policyError(error, res)) return;
     console.error('[GoogleLogin Error]', error);
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: (error as any).message } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: 'Server error' } });
   }
 };
 
@@ -153,7 +146,7 @@ export const requestOtp = async (req: Request, res: Response) => {
 
 export const verifyOtp = async (req: Request, res: Response) => {
   try {
-    const { challengeId, code, purpose, email } = req.body;
+    const { challengeId, code, purpose } = req.body;
     const challenge = await OtpChallenge.findById(challengeId);
 
     if (!challenge || challenge.consumedAt || challenge.expiresAt < new Date()) {
@@ -181,18 +174,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'OTP_INVALID', message: 'Already consumed' } });
     }
 
-    let user = await User.findOne({ email: challenge.email });
-    if (!user) {
-      if (purpose === 'LINK_ACCOUNT') {
-        return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: 'User not found' } });
-      }
-      user = await User.create({
-        email: challenge.email,
-        displayName: challenge.email.split('@')[0],
-      });
-      const defaultWorkspace = await Workspace.create({ ownerId: user._id, name: 'My Workspace' });
-      await Project.create({ workspaceId: defaultWorkspace._id, name: 'Dự án đầu tiên' });
-    }
+    const user = await admitVerifiedAccount(req, {email: challenge.email, attempt: `otp:${challengeId}`});
 
     // Try to grant monthly credits
     try {
@@ -224,6 +206,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
 
     res.json({ success: true, data: user });
   } catch (error) {
+    if (policyError(error, res)) return;
     res.status(500).json({ success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: 'Server error' } });
   }
 };

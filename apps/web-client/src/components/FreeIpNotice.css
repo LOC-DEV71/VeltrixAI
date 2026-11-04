@@ -1,0 +1,8 @@
+.free-ip-notice {position:fixed;right:24px;bottom:24px;z-index:10000;display:flex;align-items:flex-start;gap:12px;width:460px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;box-sizing:border-box;padding:20px;background:#fff;color:#172033;border:1px solid #e8ebf2;border-radius:14px;box-shadow:0 12px 40px #17203326;font-family:"Be Vietnam Pro",sans-serif;line-height:1.6;text-align:left}
+.free-ip-notice > svg {flex-shrink:0;color:#b45309;margin-top:2px}
+.free-ip-notice h2 {font-size:15px;font-weight:650;line-height:1.5;margin:0 0 8px;color:#172033}
+.free-ip-notice p {font-size:13px;margin:0;color:#475569}
+.free-ip-notice button {flex-shrink:0;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:6px;background:#fff;color:#475569;cursor:pointer}
+.free-ip-notice button:hover {background:#f1f5f9}
+.free-ip-notice a {display:inline-block;margin-top:12px;color:#4f46e5;font-size:13px;font-weight:600}
+@media(max-width:600px){.free-ip-notice{right:16px;bottom:16px;padding:16px;gap:8px}}

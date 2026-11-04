@@ -3,6 +3,7 @@ import {BillingOrder} from '../models/BillingOrder';
 import {CreditLedger} from '../models/Credits';
 import {BillingError} from './BillingService';
 import {User} from '../models/User';
+import {withOwnerIdentities} from './AdminIdentities';
 export function historyFilter(query:any,ownerId?:unknown){
  const page=Number(query.page||1),limit=Number(query.limit||10);if(!Number.isSafeInteger(page)||page<1||page>10000||!Number.isSafeInteger(limit)||limit<1||limit>100)throw new BillingError('BILLING_INVALID_INPUT');
  const filter:any=ownerId?{ownerId}:{};
@@ -14,9 +15,9 @@ export function historyFilter(query:any,ownerId?:unknown){
 }
 export async function orderHistory(query:any,ownerId?:unknown){
  const {filter,page,limit}=historyFilter(query,ownerId);
- const [items,total]=await Promise.all([BillingOrder.find(filter).select('_id ownerId tier billingCycle amount status createdAt paidAt expiresAt mode providerTransactionId startsAt endsAt planSnapshot.config.overview.name').sort({createdAt:-1,_id:-1}).skip((page-1)*limit).limit(limit).lean(),BillingOrder.countDocuments(filter)]);
+ const [items,total]=await Promise.all([BillingOrder.find(filter).select('_id ownerId tier billingCycle amount status createdAt paidAt expiresAt mode providerTransactionId startsAt endsAt purpose refundLockedAt refundedAt planSnapshot.config.overview.name').sort({createdAt:-1,_id:-1}).skip((page-1)*limit).limit(limit).lean(),BillingOrder.countDocuments(filter)]);
  const users=ownerId?[]:await User.find({_id:{$in:items.map((o:any)=>o.ownerId)}}).select('_id displayName email').lean();
- return {items:items.map((o:any)=>({_id:o._id,ownerId:ownerId?undefined:o.ownerId,owner:users.find(u=>String(u._id)===String(o.ownerId)),tier:o.tier,planName:o.planSnapshot?.config?.overview?.name||o.tier,billingCycle:o.billingCycle,amount:o.amount,currency:'VND',status:o.status,createdAt:o.createdAt,paidAt:o.paidAt,expiresAt:o.expiresAt,startsAt:o.startsAt,endsAt:o.endsAt,mode:o.mode,provider:'VNPAY',providerTransactionId:o.providerTransactionId})),total,page,limit};
+ return {items:items.map((o:any)=>({_id:o._id,ownerId:ownerId?undefined:o.ownerId,owner:users.find(u=>String(u._id)===String(o.ownerId)),tier:o.tier,planName:o.planSnapshot?.config?.overview?.name||o.tier,billingCycle:o.billingCycle,amount:o.amount,currency:'VND',status:o.status,createdAt:o.createdAt,paidAt:o.paidAt,expiresAt:o.expiresAt,startsAt:o.startsAt,endsAt:o.endsAt,mode:o.mode,provider:'VNPAY',providerTransactionId:o.providerTransactionId,purpose:o.purpose,refundLockedAt:o.refundLockedAt,refundedAt:o.refundedAt})),total,page,limit};
 }
 export async function cashSummary(query:any){
  const {filter}=historyFilter(query);const rows=await BillingOrder.aggregate([{$match:filter},{$group:{_id:{mode:'$mode',status:'$status'},orders:{$sum:1},amount:{$sum:'$amount'}}}]);
@@ -24,8 +25,8 @@ export async function cashSummary(query:any){
 }
 export async function creditHistory(query:any){
  const {page,limit,filter:dates}=historyFilter({page:query.page,limit:query.limit,from:query.from,to:query.to});const filter:any=dates;
- if(query.type){if(!['GRANT','RESERVE','SETTLE','RELEASE','EXPIRE'].includes(query.type))throw new BillingError('BILLING_INVALID_INPUT');filter.transactionType=query.type;}
+ if(query.type){if(!['GRANT','RESERVE','SETTLE','RELEASE','EXPIRE','REFUND_HOLD','REFUND_RELEASE'].includes(query.type))throw new BillingError('BILLING_INVALID_INPUT');filter.transactionType=query.type;}
  const stages:any[]=[{$match:filter},{$lookup:{from:'wallets',localField:'walletId',foreignField:'_id',as:'wallet'}},{$unwind:'$wallet'}];
  if(query.ownerId){if(!mongoose.isObjectIdOrHexString(query.ownerId))throw new BillingError('BILLING_INVALID_INPUT');stages.push({$match:{'wallet.userId':new mongoose.Types.ObjectId(query.ownerId)}});}
- const [result]=await CreditLedger.aggregate([...stages,{$sort:{createdAt:-1,_id:-1}},{$facet:{items:[{$skip:(page-1)*limit},{$limit:limit},{$project:{_id:1,createdAt:1,transactionType:1,deltaAvailable:1,deltaReserved:1,referenceId:1,ownerId:'$wallet.userId',bucket:'$wallet.bucket'}}],count:[{$count:'total'}]}}]);return {items:result.items,total:result.count[0]?.total||0,page,limit};
+ const [result]=await CreditLedger.aggregate([...stages,{$sort:{createdAt:-1,_id:-1}},{$facet:{items:[{$skip:(page-1)*limit},{$limit:limit},{$project:{_id:1,createdAt:1,transactionType:1,deltaAvailable:1,deltaReserved:1,referenceId:1,ownerId:'$wallet.userId',bucket:'$wallet.bucket'}}],count:[{$count:'total'}]}}]);return {items:await withOwnerIdentities(result.items),total:result.count[0]?.total||0,page,limit};
 }

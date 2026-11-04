@@ -42,7 +42,8 @@ export async function createCheckout(ownerId:unknown,body:any,key:unknown,ip:str
     if(!Number.isSafeInteger(quote.amount)||quote.amount<=0||quote.amount*100>999999999999)throw new BillingError('BILLING_INVALID_PRICE');
     const snapshot=await getPlanSnapshot(quote.tier);
     if(snapshot.revision!==quote.revision)throw new BillingError('BILLING_PRICE_CHANGED',409);
-    try {order=await BillingOrder.create({ownerId,requestKey:key,paymentMethodId:body.paymentMethodId,tier:quote.tier,billingCycle:quote.billingCycle,amount:quote.amount,planSnapshot:snapshot,mode:config.mode,expiresAt:new Date(Date.now()+15*60000)});}
+    const prior=await BillingOrder.findOne({ownerId,tier:quote.tier,status:'PAID',refundLockedAt:{$exists:false},mode:config.mode}).sort({paidAt:-1});
+    try {order=await BillingOrder.create({ownerId,requestKey:key,paymentMethodId:body.paymentMethodId,tier:quote.tier,billingCycle:quote.billingCycle,amount:quote.amount,planSnapshot:snapshot,mode:config.mode,purpose:prior?'RENEWAL':'PURCHASE',renewalOfOrderId:prior?prior._id:undefined,expiresAt:new Date(Date.now()+15*60000)});}
     catch(e:any){if(e.code!==11000)throw e;return createCheckout(ownerId,body,key,ip);}
     await publishBillingOrder(order._id).catch(()=>{});
   }
@@ -65,9 +66,9 @@ async function grant(order:any,month:number,startsAt:Date,session:mongoose.Clien
 export async function paidEntitlements(user:any,session:mongoose.ClientSession) {
   if(!user.billingOrderId)return null;
   // Preserve the period of payments created before explicit order periods existed.
-  const selected=await BillingOrder.findOne({_id:user.billingOrderId,ownerId:user._id,status:'PAID'}).session(session);
+  const selected=await BillingOrder.findOne({_id:user.billingOrderId,ownerId:user._id,status:'PAID',refundLockedAt:{$exists:false}}).session(session);
   if(selected&&!selected.startsAt&&user.planPeriod&&selected.tier===user.plan){selected.startsAt=user.planPeriod.startsAt;selected.endsAt=user.planPeriod.endsAt;await selected.save({session});}
-  const now=new Date();const orders=await BillingOrder.find({ownerId:user._id,status:'PAID',startsAt:{$lte:now},endsAt:{$gt:now}}).sort({paidAt:-1,_id:-1}).session(session);
+  const now=new Date();const orders=await BillingOrder.find({ownerId:user._id,status:'PAID',refundLockedAt:{$exists:false},startsAt:{$lte:now},endsAt:{$gt:now}}).sort({paidAt:-1,_id:-1}).session(session);
   for(const order of orders){const months=order.billingCycle==='yearly'?12:1;for(let i=0;i<months;i++){const start=addPlanMonths(order.startsAt,i);if(start>now)break;await grant(order,i,start,session);}}
   const order=orders.find(o=>String(o._id)===String(user.billingOrderId))||orders[0];
   if(!order)return getPlanSnapshot('FREE',session);
@@ -78,8 +79,8 @@ export async function subscriptions(ownerId:unknown,query:any={}){
  const page=Number(query.page||1),limit=10;if(!Number.isSafeInteger(page)||page<1||page>10000)throw new BillingError('BILLING_INVALID_INPUT');
  const total=await BillingOrder.countDocuments({ownerId,status:'PAID'});
  const user=await User.findById(ownerId);if(!user)throw new BillingError('BILLING_ACCOUNT_UNAVAILABLE',403);
- const items=await BillingOrder.find({ownerId,status:'PAID'}).select('_id tier billingCycle startsAt endsAt paidAt mode planSnapshot.config.overview.name').sort({paidAt:-1,_id:-1}).skip((page-1)*limit).limit(limit).lean();
- return {page,limit,total,selectedId:user.billingOrderId?String(user.billingOrderId):null,items:items.map((o:any)=>{const startsAt=o.startsAt||(String(o._id)===String(user.billingOrderId)?user.planPeriod?.startsAt:undefined),endsAt=o.endsAt||(String(o._id)===String(user.billingOrderId)?user.planPeriod?.endsAt:undefined);return {_id:o._id,tier:o.tier,name:o.planSnapshot.config.overview.name,billingCycle:o.billingCycle,startsAt,endsAt,paidAt:o.paidAt,mode:o.mode,active:!!startsAt&&startsAt<=new Date()&&endsAt>new Date()};})};
+ const items=await BillingOrder.find({ownerId,status:'PAID'}).select('_id tier billingCycle startsAt endsAt paidAt mode refundLockedAt refundedAt planSnapshot.config.overview.name').sort({paidAt:-1,_id:-1}).skip((page-1)*limit).limit(limit).lean();
+ return {page,limit,total,selectedId:user.billingOrderId?String(user.billingOrderId):null,items:items.map((o:any)=>{const startsAt=o.startsAt||(String(o._id)===String(user.billingOrderId)?user.planPeriod?.startsAt:undefined),endsAt=o.endsAt||(String(o._id)===String(user.billingOrderId)?user.planPeriod?.endsAt:undefined);return {_id:o._id,tier:o.tier,name:o.planSnapshot.config.overview.name,billingCycle:o.billingCycle,startsAt,endsAt,paidAt:o.paidAt,mode:o.mode,refundLockedAt:o.refundLockedAt,refundedAt:o.refundedAt,active:!o.refundLockedAt&&!!startsAt&&startsAt<=new Date()&&endsAt>new Date()};})};
 }
 export async function selectSubscription(ownerId:unknown,id:string,expected:unknown){
  if(!mongoose.isObjectIdOrHexString(id)||expected!==null&&!mongoose.isObjectIdOrHexString(expected))throw new BillingError('BILLING_INVALID_INPUT');
@@ -87,7 +88,7 @@ export async function selectSubscription(ownerId:unknown,id:string,expected:unkn
    const user=await User.findById(ownerId).session(session);if(!user||user.status!=='ACTIVE')throw new BillingError('BILLING_ACCOUNT_UNAVAILABLE',403);
    if(String(user.billingOrderId||'')!==String(expected||''))throw new BillingError('BILLING_SELECTION_CONFLICT',409);
    await paidEntitlements(user,session);
-   const order=await BillingOrder.findOne({_id:id,ownerId,status:'PAID',startsAt:{$lte:new Date()},endsAt:{$gt:new Date()}}).session(session);if(!order)throw new BillingError('BILLING_SUBSCRIPTION_EXPIRED',409);
+   const order=await BillingOrder.findOne({_id:id,ownerId,status:'PAID',refundLockedAt:{$exists:false},startsAt:{$lte:new Date()},endsAt:{$gt:new Date()}}).session(session);if(!order)throw new BillingError('BILLING_SUBSCRIPTION_EXPIRED',409);
    user.billingOrderId=order._id;user.plan=order.tier;user.planPeriod={billingCycle:order.billingCycle==='yearly'?'YEARLY':'MONTHLY',startsAt:order.startsAt,endsAt:order.endsAt};await user.save({session});
  });}finally{await session.endSession();}return subscriptions(ownerId);
 }

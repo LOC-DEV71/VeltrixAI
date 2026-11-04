@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../api';
+import {FreeIpNotice} from '../components/FreeIpNotice';
+import {isFreeIpDenied} from '../utils/freeIpPolicy';
 
 interface AuthContextType {
   user: any;
@@ -16,6 +18,8 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [freeIpDenied, setFreeIpDenied] = useState(false);
+  const showPolicyDenial = (error: unknown) => {if (isFreeIpDenied(error)) setFreeIpDenied(true); throw error;};
 
   useEffect(() => {
     // Check session on mount, but first fetch CSRF token
@@ -32,12 +36,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const verifyOtp = async (email: string, challengeId: string, code: string, purpose: string) => {
-    await api.post('/v1/auth/otp/verify', { email, challengeId, code, purpose });
+    await api.post('/v1/auth/otp/verify', { email, challengeId, code, purpose }).catch(showPolicyDenial);
     await refreshUser();
   };
 
   const loginGoogle = async (credential: string) => {
-    await api.post('/v1/auth/google', { credential });
+    await api.post('/v1/auth/google', { credential }).catch(showPolicyDenial);
     await refreshUser();
   };
 
@@ -56,6 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider value={{ user, loading, loginOtp, verifyOtp, loginGoogle, logout, refreshUser }}>
       {children}
+      {freeIpDenied && <FreeIpNotice onClose={() => setFreeIpDenied(false)} />}
     </AuthContext.Provider>
   );
 };

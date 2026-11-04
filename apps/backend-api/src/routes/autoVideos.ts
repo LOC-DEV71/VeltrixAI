@@ -1,0 +1,20 @@
+import { Router } from 'express';
+import { requireAuth } from '../middlewares/authMiddleware';
+import { csrfProtection } from '../middlewares/csrfMiddleware';
+import { startAutoVideo, listAutoVideos, getAutoVideo, retryAutoVideo, rerenderAutoVideo, cancelAutoVideo, revoiceAutoVideo, getAutoVideoDetails } from '../controllers/AutoVideoController';
+import { cancelRunImages, regenerateSceneImage, updateSceneImagePrompt } from '../controllers/ImageGenController';
+
+const router = Router();
+router.use(requireAuth);
+router.get('/', listAutoVideos);
+router.post('/', csrfProtection, startAutoVideo);
+router.get('/:id', getAutoVideo);
+router.get('/:id/details', getAutoVideoDetails);
+router.post('/:id/retry', csrfProtection, retryAutoVideo);
+router.post('/:id/rerender', csrfProtection, rerenderAutoVideo);
+router.post('/:id/cancel', csrfProtection, cancelAutoVideo);
+router.post('/:id/voice', csrfProtection, revoiceAutoVideo);
+router.post('/:id/images/cancel', csrfProtection, cancelRunImages);
+router.post('/:id/scenes/:sceneId/image', csrfProtection, regenerateSceneImage);
+router.patch('/:id/scenes/:sceneId/image-prompt', csrfProtection, updateSceneImagePrompt);
+export default router;

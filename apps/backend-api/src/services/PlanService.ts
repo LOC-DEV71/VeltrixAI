@@ -55,5 +55,12 @@ export function seedConfig(tier: string, ttsRate = 100): PlanConfig {
   Object.assign(config.tts, { enabled: true, maxTextChars: 3000 });
   if (tier === 'PLUS' || tier === 'PRO') Object.assign(config.clone, { enabled: true, maxVoices: 10, monthlyEnrollments: 30, minReferenceSeconds: 3, maxReferenceSeconds: 8, maxFileBytes: 4194304, maxTextChars: 3000, concurrentJobs: 2, premiumSystemVoices: true });
   Object.assign(config.limits, { concurrentJobs: 4, concurrentAiJobs: 2, requestsPerMinute: 20, queuePriority: 1 });
+  // PRO: no monthly quotas; usage is bounded only by Credit balance.
+  if (tier === 'PRO') {
+    Object.assign(config.content, { monthlyChars: null, monthlyJobs: null });
+    Object.assign(config.prompts, { monthlyGenerations: null });
+    Object.assign(config.tts, { monthlyChars: null });
+    Object.assign(config.clone, { monthlyChars: null, monthlySeconds: null, monthlyEnrollments: null });
+  }
   return validatePlan(config, tier);
 }

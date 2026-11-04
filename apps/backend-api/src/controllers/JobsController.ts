@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Job } from '../models/Job';
+import { publicProgress } from '../services/JobProgress';
 
 export const getJob = async (req: Request, res: Response) => {
   try {
@@ -25,6 +26,7 @@ export const getJob = async (req: Request, res: Response) => {
         status: job.status,
         result: job.result ?? null,
         failedReason: job.error ?? null,
+        progress: publicProgress(job),
         createdAt: (job as any).createdAt,
         updatedAt: (job as any).updatedAt,
       },

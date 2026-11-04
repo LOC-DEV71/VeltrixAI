@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PlanCatalogue } from '../components/PlanCatalogue';
 import {DeveloperIntegration} from '../components/DeveloperIntegration';
+import {supportUrl} from '../utils/supportUrl';
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronRight, FileText, FolderOpen, Layers, Mic, Search, Volume2, Wallet, Wrench, X } from 'lucide-react';
 import { useSEO } from '../hooks/useSEO';
 
@@ -218,6 +219,7 @@ export const DocsPage = () => {
             {active.id === 'start' && <section aria-label="Quy trình sáng tạo" className="grid sm:grid-cols-3 gap-3">{[{ id: 'workspace', name: '1. Tạo dự án', text: 'Một ý tưởng, một không gian làm việc.' }, { id: 'script', name: '2. Viết kịch bản', text: 'Chủ đề, người xem và tone giọng.' }, { id: 'scenes', name: '3. Tạo audio', text: 'Chọn giọng, tạo WAV và xuất lời đọc.' }].map(step => <button key={step.id} onClick={() => choose(step.id)} className="text-left rounded-xl bg-indigo-50/60 border border-indigo-100 p-4 hover:bg-indigo-100/60"><span className="block text-sm font-semibold text-indigo-700">{step.name}</span><span className="block mt-2 text-xs leading-relaxed text-slate-600">{step.text}</span></button>)}</section>}
             <section><h3 className="font-semibold text-lg text-slate-900 mb-5">{active.id === 'help' ? 'Kiểm tra và xử lý' : 'Cách thực hiện'}</h3><ol className="space-y-5">{active.steps.map((step, number) => <li key={step} className="flex items-start gap-3 sm:gap-4"><span aria-hidden="true" className="flex items-center justify-center shrink-0 w-7 h-7 rounded-full bg-indigo-50 text-indigo-700 font-semibold text-xs">{number + 1}</span><p className="text-sm sm:text-[15px] text-slate-600 leading-7">{step}</p></li>)}</ol></section>
             {active.id === 'developer' && <DeveloperIntegration />}
+            {active.id === 'help' && supportUrl && <a href={supportUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:underline">Liên hệ hỗ trợ<ArrowRight size={16} /></a>}
             {['start','script','tts','voices','credits'].includes(active.id) && <PlanCatalogue />}
             <section className="rounded-xl border border-slate-200 bg-slate-50 p-5"><h3 className="text-sm font-semibold mb-3">Cần biết</h3><ul className="space-y-3">{active.notes.map(note => <li key={note} className="flex gap-2.5 text-sm leading-relaxed text-slate-600"><Check size={16} aria-hidden="true" className="shrink-0 mt-0.5 text-indigo-500" />{note}</li>)}</ul></section>
             <section><h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Hướng dẫn liên quan</h3><div className="flex flex-wrap gap-2">{active.related.map(id => { const guide = guides.find(item => item.id === id)!; return <button key={id} onClick={() => choose(id)} className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:text-indigo-600 hover:border-indigo-300">{guide.title}</button>; })}</div></section>

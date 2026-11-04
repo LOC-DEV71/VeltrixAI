@@ -45,4 +45,4 @@
 - **Quy định 1**: Một user chỉ nhận được Free Credit tối đa 1 lần/tháng (bất kể đổi bao nhiêu máy).
 - **Quy định 2**: Một thiết bị (Device ID) chỉ được dùng để nhận Free Credit cho tối đa 3 User khác nhau mỗi tháng.
 - **Thực thi**: Khi cấp phát, thực hiện đếm trong `free_credit_grants`. Mọi cấp phát là giao dịch nguyên tử. Lịch sử cấp phát của các tháng cũ không bị xóa, số đếm tự reset nhờ query lọc theo YYYY-MM.
-- **IP**: Địa chỉ IP chỉ là tín hiệu rủi ro. Không khóa tài khoản user chỉ vì trùng IP (nhà trọ, công ty).
+- **IP (cập nhật 04/10/2026)**: Tối đa 3 tài khoản Free duy nhất được liên kết trên một IP mỗi tháng UTC, cùng cửa sổ YYYY-MM đang cấp Credit. Đăng nhập lại tài khoản đã liên kết vẫn được phép. Tài khoản Free ngoài danh sách bị từ chối sau xác thực, trước cấp session; đăng ký mới cũng bị chặn khi đủ 3. Không khóa IP/tài khoản hoặc thu hồi session khác; gói trả phí được miễn. Credit vẫn riêng từng tài khoản. Xem [chi tiết triển khai](FREE_IP_POLICY.md).

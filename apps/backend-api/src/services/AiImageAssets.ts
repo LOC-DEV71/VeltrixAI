@@ -18,14 +18,17 @@ export async function ownedContent(ownerId:mongoose.Types.ObjectId,contentId:unk
  if(!content||!project||!await Workspace.exists({_id:project.workspaceId,ownerId}))throw fail('NOT_FOUND',404);
  return content;
 }
-export async function normalizeAiImage(base64:unknown){
+export async function normalizeAiImage(base64:unknown,maxDimension:768|1536=768){
+ if(maxDimension!==768&&maxDimension!==1536)throw fail();
  if(typeof base64!=='string'||!base64||base64.length>Math.ceil(AI_LIMITS.imageBytes/3)*4||base64.length%4!==0||!/^[A-Za-z0-9+/]+={0,2}$/.test(base64))throw fail();
  const bytes=Buffer.from(base64,'base64');if(bytes.length>AI_LIMITS.imageBytes)throw fail('CONTENT_IMAGE_TOO_LARGE');
  try{
   const decoder=sharp(bytes,{failOn:'error',limitInputPixels:AI_LIMITS.imagePixels});
   const metadata=await decoder.metadata();
   if(!['png','jpeg','webp'].includes(metadata.format||'')||!metadata.width||!metadata.height||metadata.width>4096||metadata.height>4096||(metadata.pages||1)!==1)throw fail();
-  const result=await decoder.rotate().resize({width:768,height:768,fit:'inside',withoutEnlargement:true}).removeAlpha().png().toBuffer({resolveWithObject:true});
+  let result=await decoder.rotate().resize({width:maxDimension,height:maxDimension,fit:'inside',withoutEnlargement:true}).removeAlpha().png().toBuffer({resolveWithObject:true});
+  // Keep the byte bound even for a noisy JPEG that expands when normalized to PNG.
+  if(result.data.length>AI_LIMITS.imageBytes&&maxDimension>768)result=await sharp(bytes,{failOn:'error',limitInputPixels:AI_LIMITS.imagePixels}).rotate().resize({width:768,height:768,fit:'inside',withoutEnlargement:true}).removeAlpha().png().toBuffer({resolveWithObject:true});
   if(result.data.length>AI_LIMITS.imageBytes)throw fail('CONTENT_IMAGE_TOO_LARGE');
   return {bytes:result.data,width:result.info.width,height:result.info.height,sha256:createHash('sha256').update(result.data).digest('hex')};
  }catch(error){if(error instanceof AiProviderError)throw error;throw fail();}

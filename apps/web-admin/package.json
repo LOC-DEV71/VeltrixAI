@@ -11,7 +11,8 @@
     "test:plans:browser": "node tests/plans-browser-local.cjs",
     "test:plans:design": "node tests/plans-design-browser.cjs",
     "test:users:design": "node tests/users-design-browser.cjs",
-    "test:voices:design": "node tests/voices-design-browser.cjs"
+    "test:voices:design": "node tests/voices-design-browser.cjs",
+    "test:operations:browser": "node tests/operations-browser.cjs"
   },
   "dependencies": {
     "antd": "^6.6.5",

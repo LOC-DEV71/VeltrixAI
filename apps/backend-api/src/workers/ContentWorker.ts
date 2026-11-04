@@ -2,6 +2,8 @@
 import { ContentRevision } from '../models/Plan';
 import { Worker, Job as BullJob } from 'bullmq';
 import { createContentAiProvider, sceneJsonSchema } from '../providers/AiProvider';
+import { ensureLocalAi } from '../services/LocalAiControl';
+import { appendLive, finishLive, startLive } from '../services/LiveText';
 import { connection } from './queue';
 import { Job } from '../models/Job';
 import { Content } from '../models/Content';
@@ -17,6 +19,7 @@ import { buildVideoSegments } from '../utils/videoSegments';
 import { loadAiImages } from '../services/AiImageAssets';
 import {Project} from '../models/Project';
 import {Workspace} from '../models/Workspace';
+import { CONTENT_STAGES, setJobProgress } from '../services/JobProgress';
 
 export let contentWorker: Worker | null = null;
 
@@ -35,7 +38,10 @@ export const processContentJob = async (bullJob: BullJob | any) => {
   const executionClaimId = updatedJob.executionClaim;
 
   const heartbeat = setInterval(() => { Job.updateOne({ _id: job._id, status: 'PROCESSING', executionClaim: executionClaimId }, { $set: { leaseExpiresAt: new Date(Date.now() + 360000) } }).catch(() => { }); }, 30000); heartbeat.unref();
+  const stages = CONTENT_STAGES[updatedJob.type as keyof typeof CONTENT_STAGES] ?? CONTENT_STAGES.AI_CONTENT;
+  const progress = (stage: string, message?: string) => setJobProgress(updatedJob._id as mongoose.Types.ObjectId, executionClaimId, stages, stage, message);
   try {
+    await progress('PREPARING');
     if (updatedJob.attempts > 3) throw new Error('CONTENT_RETRY_EXHAUSTED');
     const pinnedSnapshot = await verifyJobEntitlements(updatedJob);
     const { contentId, platform, audience, tone, topic } = updatedJob.payload;
@@ -47,6 +53,8 @@ export const processContentJob = async (bullJob: BullJob | any) => {
     const options = updatedJob.payload.options ? resolveContentOptions({ ...updatedJob.payload.options, ...(updatedJob.type === 'AI_PROMPT_GEN' ? { sceneCount: 0 } : {}) }, pinnedSnapshot, updatedJob.payload.options.speechUnitsPerSecond) : undefined;
 
     if (options && updatedJob.type === 'AI_PROMPT_GEN') { options.sceneCount = updatedJob.payload.promptSources.length; options.minScenes = options.sceneCount; options.maxScenes = options.sceneCount; }
+    // The local LLM may have been stopped to free the GPU for image generation: start it again.
+    await ensureLocalAi();
     const provider = createContentAiProvider();
     const images = updatedJob.payload.imageAssetIds?.length ? await loadAiImages(updatedJob.ownerId,content._id as mongoose.Types.ObjectId,updatedJob.payload.imageAssetIds) : undefined;
     if (updatedJob.payload.aiProvider && (provider.identity.kind !== updatedJob.payload.aiProvider.kind || provider.identity.model !== updatedJob.payload.aiProvider.model)) throw new Error('CONTENT_PROVIDER_CHANGED');
@@ -62,9 +70,14 @@ Chỉ trả JSON array. Mỗi cảnh có title, narration, visualDescription, es
     if (updatedJob.type === 'AI_PROMPT_GEN') prompt += '\nCreate visual prompts only for these existing scenes. Keep their narration, title, duration and order unchanged. JSON scene source: ' + JSON.stringify(updatedJob.payload.promptSources?.map((s: any) => ({ title: s.title, narration: s.narration, estimatedDuration: s.estimatedDuration })));
     let generated: GeneratedScene[] | undefined;
     for (let attempt = 0; attempt < (options ? 2 : 1); attempt++) {
+      await progress('WRITING', attempt ? `${stages[1].message} (lần ${attempt + 1}, sửa theo yêu cầu)` : undefined);
       const feedback=updatedJob.type==='AI_SPLIT'?'Lần trước không đạt yêu cầu. Giữ nguyên toàn bộ từ và dấu câu của nguồn, chỉ chia thành các narration liên tiếp; không viết lời mới. Trả đúng JSON array và số cảnh đã yêu cầu.':options ? sceneOptionsFeedback(generated, options) : '';
-      const result = await provider.generate({images,instruction,prompt:attempt ? `${prompt}\n${feedback}` : prompt,schema:sceneJsonSchema(options ? {...SCENE_RESPONSE_SCHEMA,minItems:options.minScenes,maxItems:options.maxScenes} : SCENE_RESPONSE_SCHEMA),maxOutputTokens:options?.maxTokens || 4096,timeoutMs:provider.identity.kind==='local'?180000:options && options.durationSeconds>=180?150000:90000});
-      try { generated = parseGeneratedScenes(result.text); if (options && updatedJob.type !== 'AI_PROMPT_GEN') validateSceneOptions(generated, options); if (updatedJob.type === 'AI_PROMPT_GEN' && generated.length !== updatedJob.payload.promptSources.length) throw new Error('CONTENT_SCENE_COUNT_MISMATCH'); if (updatedJob.type === 'AI_SPLIT' && generated.map(s => s.narration).join(' ').replace(/\s+/g, ' ').trim() !== String(topic).replace(/\s+/g, ' ').trim()) throw new Error('CONTENT_SPLIT_TEXT_MISMATCH'); if (options && updatedJob.type !== 'AI_PROMPT_GEN') validateOutput(pinnedSnapshot, generated, updatedJob.payload.outputBudget); break; }
+      const liveKey = String(updatedJob._id);
+      startLive(liveKey, 'script');
+      const result = await provider.generate({onToken:(chunk)=>appendLive(liveKey,chunk),images,instruction,prompt:attempt ? `${prompt}\n${feedback}` : prompt,schema:sceneJsonSchema(options ? {...SCENE_RESPONSE_SCHEMA,minItems:options.minScenes,maxItems:options.maxScenes} : SCENE_RESPONSE_SCHEMA),maxOutputTokens:options?.maxTokens || 4096,timeoutMs:provider.identity.kind==='local'?180000:options && options.durationSeconds>=180?150000:90000});
+      finishLive(String(updatedJob._id));
+      await progress('VALIDATING');
+      try { generated = parseGeneratedScenes(result.text); if (options && updatedJob.type !== 'AI_PROMPT_GEN') validateSceneOptions(generated, options, attempt === 0); if (updatedJob.type === 'AI_PROMPT_GEN' && generated.length !== updatedJob.payload.promptSources.length) throw new Error('CONTENT_SCENE_COUNT_MISMATCH'); if (updatedJob.type === 'AI_SPLIT' && generated.map(s => s.narration).join(' ').replace(/\s+/g, ' ').trim() !== String(topic).replace(/\s+/g, ' ').trim()) throw new Error('CONTENT_SPLIT_TEXT_MISMATCH'); if (options && updatedJob.type !== 'AI_PROMPT_GEN') validateOutput(pinnedSnapshot, generated, updatedJob.payload.outputBudget); break; }
       catch (error) { if (!options || attempt === 1) throw error; }
     }
     if (!generated) throw new Error('INVALID_GEMINI_SCENES');
@@ -74,6 +87,7 @@ Chỉ trả JSON array. Mỗi cảnh có title, narration, visualDescription, es
     if (policy) validateOutput(updatedJob.payload.entitlementSnapshot, scenesData, updatedJob.payload.outputBudget);
     const videoSegments = scenesData.map(s => buildVideoSegments(s.narration, s.estimatedDuration, s.videoPrompt, s.videoSegments));
     // Validate everything before touching previous content/scenes.
+    await progress('SAVING');
     const session = await mongoose.startSession();
     let savedScenes: IScene[] = [];
     try {

@@ -54,3 +54,8 @@ services/tts/artifacts
 venv*
 __pycache__/
 *.pyc
+packages/video-renderer/out/
+packages/video-renderer/public/spike/*.wav
+
+# Reference clones (not part of the product; e.g. _ref/OpenMontage)
+_ref/

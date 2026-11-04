@@ -9,20 +9,29 @@ import mongoose from 'mongoose';
 import { parsePlanPeriod, planPeriodView } from '../services/PlanPeriod';
 import { AccountError } from '../services/UserAccount';
 import {subscriptions as ownedSubscriptions} from '../services/BillingService';
+import {FreeIpWindow} from '../models/FreeIpPolicy';
+import {normalizeIp, freeIpMonth} from '../services/FreeIpPolicy';
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
     const page = Number(req.query.page || 1);
     const limit = 10;
     if (!Number.isSafeInteger(page) || page < 1 || page > 10000) return res.status(400).json({ success: false, error: { code: 'INVALID_PAGINATION', message: 'Trang không hợp lệ' } });
-    const search = req.query.search as string || '';
+    if (req.query.search !== undefined && (typeof req.query.search !== 'string' || req.query.search.length > 254)) return res.status(400).json({ success: false, error: { code: 'ADMIN_INVALID_INPUT' } });
+    const search = (req.query.search as string || '').trim();
+    const literalSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const status = req.query.status as string;
 
     const query: any = {};
-    if (search) {
+    const ip = normalizeIp(search);
+    if (ip) {
+      const network = await FreeIpWindow.findOne({ip, month: freeIpMonth()}).select('accountIds').lean();
+      query._id = {$in: network?.accountIds || []};
+    } else if (search) {
       query.$or = [
-        { email: { $regex: search, $options: 'i' } },
-        { displayName: { $regex: search, $options: 'i' } }
+        { email: { $regex: literalSearch, $options: 'i' } },
+        { displayName: { $regex: literalSearch, $options: 'i' } },
+        ...(mongoose.isObjectIdOrHexString(search) ? [{ _id: new mongoose.Types.ObjectId(search) }] : [])
       ];
     }
     if (status) {
@@ -74,6 +83,7 @@ export const getUserDetails = async (req: Request, res: Response) => {
     const workspaces = await Workspace.find({ ownerId: id }).sort({createdAt:-1,_id:-1}).limit(10).lean();
     const workspaceTotal=await Workspace.countDocuments({ownerId:id});
     const recentJobs = await Job.find({ ownerId: id }).select('type status payload.cost createdAt updatedAt').sort({ createdAt: -1 }).limit(10).lean();
+    const ipNetworks = await FreeIpWindow.find({accountIds: id}).select('ip month suspicious lastDeniedAt').sort({month: -1, _id: -1}).limit(10).lean();
 
     const period = planPeriodView(user);
     const subscriptions: any[] = period ? [{
@@ -83,7 +93,7 @@ export const getUserDetails = async (req: Request, res: Response) => {
       provider: user.billingOrderId ? 'VNPAY' : 'ADMIN'
     }] : [];
     const purchased=await ownedSubscriptions(id,req.query);
-    if(purchased.total>0){subscriptions.splice(0,subscriptions.length,...purchased.items.map((o:any)=>({_id:String(o._id),tier:o.name||o.tier,status:o.active?'ACTIVE':'EXPIRED',provider:'VNPAY',billingCycle:o.billingCycle==='yearly'?'YEARLY':'MONTHLY',startsAt:o.startsAt,endsAt:o.endsAt,selected:String(o._id)===purchased.selectedId})));}
+    if(purchased.total>0){subscriptions.splice(0,subscriptions.length,...purchased.items.map((o:any)=>({_id:String(o._id),tier:o.name||o.tier,status:o.refundedAt?'REFUNDED':o.refundLockedAt?'REFUND_PENDING':o.active?'ACTIVE':'EXPIRED',provider:'VNPAY',billingCycle:o.billingCycle==='yearly'?'YEARLY':'MONTHLY',startsAt:o.startsAt,endsAt:o.endsAt,selected:String(o._id)===purchased.selectedId})));}
 
     res.json({
       success: true,
@@ -94,7 +104,8 @@ export const getUserDetails = async (req: Request, res: Response) => {
         wallets,
         workspaces,
         workspacesMeta:{total:workspaceTotal,page:1,limit:10},
-        recentJobs
+        recentJobs,
+        ipNetworks
       }
     });
   } catch (error: any) {

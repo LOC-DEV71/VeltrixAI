@@ -4,7 +4,7 @@ export interface IJob extends Document {
   createdAt: Date;
   updatedAt: Date;
   ownerId: mongoose.Types.ObjectId;
-  type: 'VOICE_ENROLLMENT' | 'TTS' | 'AI_CONTENT' | 'AI_SPLIT' | 'AI_PROMPT_GEN' | 'AI_ANALYSIS';
+  type: 'VOICE_ENROLLMENT' | 'TTS' | 'AI_CONTENT' | 'AI_SPLIT' | 'AI_PROMPT_GEN' | 'AI_ANALYSIS' | 'VIDEO_RENDER' | 'YOUTUBE_PUBLISH' | 'IMAGE_GEN';
   status: 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
   payload: any;
   reservationId?: mongoose.Types.ObjectId;
@@ -14,11 +14,14 @@ export interface IJob extends Document {
   leaseExpiresAt?: Date;
   result?: any;
   error?: any;
+  // User-visible progress. Only safe stage codes and Vietnamese messages; never prompts or provider details.
+  progress?: { stage: string; step: number; totalSteps: number; message: string; percent?: number; updatedAt: Date };
+  startedAt?: Date; // set when a worker claims the job
 }
 
 const JobSchema = new Schema<IJob>({
   ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  type: { type: String, enum: ['VOICE_ENROLLMENT', 'TTS', 'AI_CONTENT', 'AI_SPLIT', 'AI_PROMPT_GEN', 'AI_ANALYSIS'], required: true },
+  type: { type: String, enum: ['VOICE_ENROLLMENT', 'TTS', 'AI_CONTENT', 'AI_SPLIT', 'AI_PROMPT_GEN', 'AI_ANALYSIS', 'VIDEO_RENDER', 'YOUTUBE_PUBLISH', 'IMAGE_GEN'], required: true },
   status: { type: String, enum: ['QUEUED', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED'], default: 'QUEUED', index: true },
   payload: { type: Schema.Types.Mixed },
   reservationId: { type: Schema.Types.ObjectId, ref: 'CreditReservation' },
@@ -28,6 +31,8 @@ const JobSchema = new Schema<IJob>({
   leaseExpiresAt: { type: Date },
   result: { type: Schema.Types.Mixed },
   error: { type: Schema.Types.Mixed },
+  progress: { type: new Schema({ stage: String, step: Number, totalSteps: Number, message: String, percent: Number, updatedAt: Date }, { _id: false }) },
+  startedAt: { type: Date },
 }, { timestamps: true });
 
 JobSchema.index({ type: 1, status: 1, leaseExpiresAt: 1 });

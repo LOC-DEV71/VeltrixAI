@@ -1,10 +1,11 @@
 import {AdminBillingBell} from './AdminBillingBell';
+import {AdminSecurityBell} from './AdminSecurityBell';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { adminRoutes, adminPagePermissions } from './adminRoutes';
 import { canAdmin } from './controlApi';
 import { Button, Tooltip } from 'antd';
-import { ArrowUpRight, Boxes, BrainCircuit, ChevronRight, Code2, CreditCard, FileText, History, LayoutDashboard, LogOut, Menu, Mic, Search, Settings, ShieldCheck, Users, Wallet, X } from 'lucide-react';
+import { ArrowUpRight, Boxes, ChevronRight, Code2, CreditCard, FileText, History, LayoutDashboard, LogOut, Menu, Mic, Search, Settings, ShieldCheck, Users, Wallet, X } from 'lucide-react';
 import './AdminShell.css';
 const groups = [
   { title: 'Không gian quản trị', items: [
@@ -45,7 +46,7 @@ export function AdminShell({ user, active, onNavigate, onLogout, children }: {
   return <div className={`admin-shell ${active === 'PLANS' ? 'plans-shell' : ''}`}>
     {mobileOpen && <button className="nav-backdrop" aria-label="Đóng menu" onClick={() => setMobileOpen(false)} />}
     <aside id="admin-navigation-sidebar" className={`admin-sidebar ${mobileOpen ? 'is-open' : ''}`}>
-      <a className="brand" href="/" onClick={e => { e.preventDefault(); navigate('OVERVIEW'); }}><span className="brand-mark"><BrainCircuit size={21} /></span><span className="brand-word">Veltrix AI<span>ADMIN CORE</span></span></a>
+      <a className="brand" href="/" onClick={e => { e.preventDefault(); navigate('OVERVIEW'); }}><span className="brand-mark brand-logo"><img src="/logo-icon.png" alt="" /></span><span className="brand-word">Veltrix AI<span>ADMIN CORE</span></span></a>
       <button className="mobile-nav-close icon-button" aria-label="Đóng menu" onClick={() => setMobileOpen(false)}><X size={18} /></button>
       <nav aria-label="Menu quản trị">{groups.map(group => ({ ...group, items: group.items.filter(item => canAdmin(user, adminPagePermissions[item.id])) })).filter(group => group.items.length > 0).map(group => <div className="nav-group" key={group.title}><p>{group.title}</p>{group.items.map(item => {
         const Icon = item.icon; const pending = 'pending' in item && item.pending === true;
@@ -54,7 +55,7 @@ export function AdminShell({ user, active, onNavigate, onLogout, children }: {
       <div className="sidebar-bottom"><div className="access-note"><ShieldCheck size={17} /><div><strong>Quyền truy cập quản trị</strong><span>Mọi thay đổi đều được ghi nhận</span></div></div><a href="http://localhost:5173/" target="_blank" rel="noreferrer">Mở ứng dụng Creator <ArrowUpRight size={15} /></a></div>
     </aside>
     <div className="admin-main">
-      <header className="admin-header"><div className="header-location"><button className="mobile-menu icon-button" onClick={() => setMobileOpen(true)} aria-label="Mở menu" aria-expanded={mobileOpen} aria-controls="admin-navigation-sidebar"><Menu size={20} /></button><span>{active === 'PLANS' ? 'Quản lý dịch vụ' : 'Workspace'}</span><ChevronRight size={14} /><strong>{adminPageName(active)}</strong></div><div className="header-account">{active === 'PLANS' && <Button className="plan-header-search" icon={<Search size={16} />} onClick={() => { const input = document.querySelector<HTMLInputElement>('input[aria-label="Tìm gói"]'); input?.scrollIntoView({ block: 'center', behavior: 'smooth' }); input?.focus(); }}>Tìm gói dịch vụ...</Button>}{canAdmin(user,'billing.read')&&<AdminBillingBell onOrders={()=>navigate('ORDERS')}/>}<span className="admin-access"><ShieldCheck size={14} />Quản trị</span><div className="account-copy"><strong>{user.displayName || 'Administrator'}</strong><span>{user.email}</span></div><span className="account-avatar">{(user.displayName || user.email).charAt(0).toUpperCase()}</span><Tooltip title="Đăng xuất"><Button type="text" className="logout-button" aria-label="Đăng xuất" icon={<LogOut size={17} />} onClick={onLogout} /></Tooltip></div></header>
+      <header className="admin-header"><div className="header-location"><button className="mobile-menu icon-button" onClick={() => setMobileOpen(true)} aria-label="Mở menu" aria-expanded={mobileOpen} aria-controls="admin-navigation-sidebar"><Menu size={20} /></button><span>{active === 'PLANS' ? 'Quản lý dịch vụ' : 'Workspace'}</span><ChevronRight size={14} /><strong>{adminPageName(active)}</strong></div><div className="header-account">{active === 'PLANS' && <Button className="plan-header-search" icon={<Search size={16} />} onClick={() => { const input = document.querySelector<HTMLInputElement>('input[aria-label="Tìm gói"]'); input?.scrollIntoView({ block: 'center', behavior: 'smooth' }); input?.focus(); }}>Tìm gói dịch vụ...</Button>}{canAdmin(user,'users.read')&&<AdminSecurityBell accountKey={user.email}/>}{canAdmin(user,'billing.read')&&<AdminBillingBell onOrders={()=>navigate('ORDERS')}/>}<span className="admin-access"><ShieldCheck size={14} />Quản trị</span><div className="account-copy"><strong>{user.displayName || 'Administrator'}</strong><span>{user.email}</span></div><span className="account-avatar">{(user.displayName || user.email).charAt(0).toUpperCase()}</span><Tooltip title="Đăng xuất"><Button type="text" className="logout-button" aria-label="Đăng xuất" icon={<LogOut size={17} />} onClick={onLogout} /></Tooltip></div></header>
       <main className="admin-content">{children}</main>
       <footer className="admin-footer"><span>© {year} Veltrix · Admin Workspace</span><span>Quản lý rõ ràng. Sáng tạo tự do.</span></footer>
     </div>
