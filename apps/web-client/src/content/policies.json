@@ -1,6 +1,6 @@
 {
-  "updatedAt": "02/10/2026",
-  "effectiveAt": "02/10/2026",
+  "updatedAt": "07/10/2026",
+  "effectiveAt": "07/10/2026",
   "intro": "Chào mừng bạn đến với **Veltrix AI Creator**.\n\nVeltrix AI Creator là nền tảng hỗ trợ người sáng tạo xây dựng quy trình nội dung bằng trí tuệ nhân tạo, từ ý tưởng ban đầu đến nội dung, kịch bản, phân chia Scene, giọng đọc và các prompt phục vụ quá trình tạo hình ảnh, thumbnail hoặc video trên các công cụ bên thứ ba.\n\nTrung tâm Chính sách & Điều khoản này giải thích:\n\n- quyền và nghĩa vụ khi sử dụng Veltrix;\n- cách tài khoản được quản lý;\n- các gói Free, Plus và Pro;\n- thanh toán và chu kỳ đăng ký;\n- cách Credit được tính và hoàn trả;\n- quy định sử dụng AI và TTS;\n- quyền đối với nội dung;\n- quyền riêng tư và dữ liệu;\n- các hành vi bị cấm;\n- cách xử lý khi có tranh chấp hoặc vi phạm.\n\nBằng việc tạo tài khoản, mua gói hoặc tiếp tục sử dụng Veltrix AI Creator, bạn xác nhận rằng bạn đã đọc và đồng ý với các chính sách áp dụng.",
   "documents": [
     {
@@ -141,12 +141,12 @@
         {
           "number": 16,
           "title": "CHÍNH SÁCH HOÀN TIỀN",
-          "body": "Hoàn Credit và hoàn tiền là hai việc khác nhau.\n\n## Hoàn Credit\n\nÁp dụng cho tác vụ AI bị lỗi do hệ thống.\n\n## Hoàn tiền\n\nÁp dụng đối với khoản tiền người dùng đã thanh toán.\n\nVeltrix có thể xem xét hoàn tiền trong các trường hợp:\n\n- giao dịch bị tính phí nhiều lần;\n- thanh toán nhưng gói không được kích hoạt;\n- lỗi thanh toán nghiêm trọng;\n- trường hợp được pháp luật yêu cầu;\n- trường hợp đặc biệt được Veltrix xác nhận."
+          "body": "Hoàn Credit và hoàn tiền là hai việc khác nhau. Hoàn Credit áp dụng cho tác vụ thất bại theo quy tắc giữ và giải phóng Credit.\n\n## Hoàn toàn bộ tiền gia hạn\n\nChỉ áp dụng cho **đơn gia hạn gói**, trong **24 giờ kể từ thanh toán thành công**, và **không quá 1.000 Credit thực tế đã tiêu thụ từ lần gia hạn đó**. Không áp dụng tự động cho lần mua gói đầu tiên.\n\nBạn mở Help Center, yêu cầu hoàn tiền trong chat hoặc chọn **Gia hạn & hoàn tiền**. Backend kiểm tra quyền sở hữu, biên nhận thanh toán, sổ thu, Credit đã dùng và đối chiếu VNPay. Khi đủ điều kiện, bạn phải bấm **Xác nhận hoàn toàn bộ tiền**; hệ thống kiểm tra lại trước khi gửi yêu cầu.\n\nKhi xác nhận, quyền lợi gia hạn và Credit chưa dùng của đơn đó ngừng sử dụng. Các gói khác và dữ liệu đã tạo được giữ lại. Hoàn tiền qua giao dịch VNPay ban đầu; thời gian tiền về phụ thuộc cổng thanh toán và ngân hàng. Yêu cầu đang xử lý hoặc chưa có kết quả đối soát không đồng nghĩa tiền đã về.\n\nMỗi đơn chỉ có một yêu cầu hoàn. Bấm lại, dùng thiết bị khác hay kết nối lại không gửi thêm lệnh hoàn. Nếu mất phản hồi, hệ thống chỉ đối soát trạng thái. Chức năng tự động cần cổng VNPay hoàn tiền được cấu hình và kích hoạt.\n\nĐơn cũ thiếu bằng chứng gia hạn/thanh toán không được suy đoán để hoàn tự động. Các trường hợp tính phí trùng, thanh toán không kích hoạt gói, lỗi thanh toán hoặc yêu cầu theo pháp luật cần được kiểm tra riêng."
         },
         {
           "number": 17,
           "title": "TRƯỜNG HỢP CÓ THỂ KHÔNG ĐƯỢC HOÀN TIỀN",
-          "body": "Veltrix có thể từ chối hoàn tiền trong các trường hợp:\n\n- người dùng đã sử dụng đáng kể quyền lợi;\n- phần lớn Credit đã được sử dụng;\n- người dùng đổi ý sau khi dịch vụ đã được cung cấp;\n- kết quả AI không đúng sở thích cá nhân nhưng tác vụ hoạt động đúng;\n- tài khoản bị hạn chế do vi phạm chính sách;\n- người dùng cố tình lợi dụng chính sách hoàn tiền.\n\n**Thời hạn gửi yêu cầu hoàn tiền chưa được công bố.**"
+          "body": "Yêu cầu hoàn tiền gia hạn tự động không đủ điều kiện nếu không phải đơn gia hạn, quá 24 giờ, đã dùng hơn 1.000 Credit từ lần gia hạn, có tác vụ còn giữ Credit của lần đó, hoặc không xác minh đầy đủ thanh toán và lịch sử Credit.\n\nSau khi tác vụ đang giữ Credit kết thúc, bạn có thể kiểm tra lại nếu vẫn trong thời hạn. Credit giữ chưa phải là Credit đã tiêu thụ; hệ thống đợi kết quả tác vụ để tránh tính sai.\n\nVeltrix có thể từ chối các yêu cầu lợi dụng chính sách hoàn tiền. Kết quả AI không đúng sở thích cá nhân nhưng tác vụ hoạt động đúng không tự động tạo quyền hoàn tiền ngoài phạm vi chính sách này."
         }
       ]
     },

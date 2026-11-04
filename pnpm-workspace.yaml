@@ -6,7 +6,10 @@ allowBuilds:
   'msgpackr-extract': true
   'mongodb-memory-server': true
   sharp: true
+  tesseract.js: false
+  esbuild: true
 minimumReleaseAgeExclude:
   - framer-motion@13.5.0
   - motion-dom@13.5.0
   - motion-utils@13.5.0
+  - lucide-react@1.67.0

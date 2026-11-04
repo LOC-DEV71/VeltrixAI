@@ -1,0 +1,5 @@
+# Generated images (named by content hash) and the Python venv are local only.
+.venv/
+cache/*
+!cache/.gitkeep
+__pycache__/

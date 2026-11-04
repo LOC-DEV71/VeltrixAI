@@ -9,8 +9,11 @@
     }
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
+    "dev": "node scripts/build-support-knowledge.cjs && ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "node scripts/build-support-knowledge.cjs && tsc",
+    "support:knowledge": "node scripts/build-support-knowledge.cjs",
+    "test:support": "npm run build && node --test tests/support-chat.test.cjs tests/support-images.test.cjs tests/support-ocr.test.cjs tests/support-session.test.cjs tests/support-knowledge.test.cjs tests/support-plans.test.cjs tests/support-admission.test.cjs",
+    "test:refunds": "npm run build && node --test tests/billing-refund.test.cjs tests/billing.test.cjs tests/admin-finance.test.cjs tests/admin-credits.test.cjs",
     "start": "node dist/index.js",
     "worker:tts": "node dist/workers/tts.js",
     "lint": "oxlint",
@@ -25,10 +28,14 @@
     "seed:voices": "pnpm run build && node dist/scripts/seedSystemVoices.js",
     "seed:voice-avatars": "pnpm run build && node dist/scripts/seedVoiceAvatars.js",
     "test:plans": "pnpm run build && node --test tests/plans.test.cjs",
-    "seed:plans": "pnpm run build && node dist/scripts/seedPlans.js"
+    "seed:plans": "pnpm run build && node dist/scripts/seedPlans.js",
+    "worker:video": "node dist/workers/video.js",
+    "test:video": "pnpm run build && node --test tests/job-progress.test.cjs tests/idea-suggestion.test.cjs tests/video-captions.test.cjs tests/video-planning.test.cjs tests/video-storyboard.test.cjs tests/video-theme.test.cjs tests/word-timing.test.cjs tests/video-pipeline.test.cjs tests/youtube-publish.test.cjs tests/auto-video.test.cjs tests/image-gen.test.cjs tests/live-text.test.cjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@tesseract.js-data/eng": "^1.0.0",
+    "@tesseract.js-data/vie": "^1.0.0",
     "bullmq": "^6.3.10",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -42,7 +49,9 @@
     "mongoose": "^8.7.0",
     "sharp": "0.34.5",
     "socket.io": "^4.8.4",
-    "uuid": "^14.0.2"
+    "tesseract.js": "^7.0.0",
+    "uuid": "^14.0.2",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",

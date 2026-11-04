@@ -105,7 +105,7 @@ export async function claimPlanJob(filter: Record<string,any>, leaseMs: number):
         if(item.type.startsWith('AI_')&&c.limits.concurrentAiJobs!==null&&prospective.filter(j=>j.type.startsWith('AI_')).length>c.limits.concurrentAiJobs)return;
         if((item.type==='VOICE_ENROLLMENT'||item.payload.isClone)&&c.clone.concurrentJobs!==null&&prospective.filter(j=>j.type==='VOICE_ENROLLMENT'||j.payload.isClone).length>c.clone.concurrentJobs)return;
       }
-      claimed=await Job.findOneAndUpdate({_id:job._id,$or:[{status:'QUEUED'},{status:'PROCESSING',leaseExpiresAt:{$lt:new Date()}}]},{$set:{status:'PROCESSING',executionClaim:randomUUID(),leaseExpiresAt:new Date(Date.now()+leaseMs)},$inc:{attempts:1}},{new:true,session});
+      claimed=await Job.findOneAndUpdate({_id:job._id,$or:[{status:'QUEUED'},{status:'PROCESSING',leaseExpiresAt:{$lt:new Date()}}]},{$set:{status:'PROCESSING',executionClaim:randomUUID(),leaseExpiresAt:new Date(Date.now()+leaseMs),startedAt:new Date()},$inc:{attempts:1}},{new:true,session});
     }); } finally {await session.endSession();}
     if(claimed)return claimed;
   }

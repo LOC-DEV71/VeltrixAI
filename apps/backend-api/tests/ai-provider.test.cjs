@@ -26,6 +26,13 @@ test('input, image count and context limits fail before inference',async()=>{
  await assert.rejects(new LocalContentProvider(config()).generate({...request,images:[1,2]}),e=>e.code==='CONTENT_IMAGE_INVALID');
  const calls=[];mock.method(globalThis,'fetch',async(url)=>{calls.push(url);return Response.json(url.endsWith('/apply-template')?{prompt:'applied'}:{tokens:Array(8190).fill(1)});});await assert.rejects(new LocalContentProvider(config()).generate(request),e=>e.code==='CONTENT_CONTEXT_LIMIT_EXCEEDED');assert.equal(calls.length,2);
 });
+
+test('Support can place the image before its question and reserve the full Gemma visual token budget',async()=>{
+ const calls=[];
+ mock.method(globalThis,'fetch',async(url,init)=>{const body=JSON.parse(init.body);calls.push(body);return Response.json(url.endsWith('/apply-template')?{prompt:'applied'}:url.endsWith('/tokenize')?{tokens:Array(5000).fill(1)}:{choices:[{finish_reason:'stop',message:{content:'[]'}}]});});
+ await new LocalContentProvider(config()).generate({...request,maxOutputTokens:4096,imageFirst:true,temperature:0.2,images:[{bytes:Buffer.from('fixture'),mime:'image/png'}]});
+ const final=calls.at(-1);assert.equal(final.messages[1].content[0].type,'image_url');assert.equal(final.messages[1].content.at(-1).text,request.prompt);assert.equal(final.temperature,0.2);assert.equal(final.max_tokens,8192-5000-1152-64);
+});
 test('PNG/JPEG/WebP decode fully, bounded dimensions, corrupt/SVG/URL denied',async()=>{
  for(const format of ['png','jpeg','webp']){const bytes=await sharp({create:{width:100,height:60,channels:3,background:'red'}})[format]().toBuffer();const result=await normalizeAiImage(bytes.toString('base64'));assert.equal(result.width,100);assert.equal(result.height,60);assert.equal((await sharp(result.bytes).metadata()).format,'png');}
  for(const input of ['https://host/image.png',Buffer.from('<svg/>').toString('base64'),Buffer.from([137,80,78,71]).toString('base64')])await assert.rejects(normalizeAiImage(input),e=>e.code==='CONTENT_IMAGE_INVALID');

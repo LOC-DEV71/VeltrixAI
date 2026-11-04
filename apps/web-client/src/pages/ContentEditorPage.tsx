@@ -8,9 +8,21 @@ import { Dropdown } from '../components/ui/Dropdown';
 import { api } from '../api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
-import { waitForContentJob } from '../utils/pollContentJob';
+import { waitForContentJob, type JobProgress } from '../utils/pollContentJob';
+import { JobProgressSteps, type StepDefinition } from '../components/JobProgressSteps';
+import { IdeaSuggestions } from '../components/IdeaSuggestions';
 
 type EditorState = 'EMPTY' | 'LOADING' | 'GENERATED';
+
+// Must match CONTENT_STAGES.AI_CONTENT in backend-api/src/services/JobProgress.ts, plus the client-side steps.
+const CONTENT_STEPS: StepDefinition[] = [
+  { stage: 'SUBMITTING', label: 'Gửi yêu cầu' },
+  { stage: 'QUEUED', label: 'Chờ trong hàng đợi' },
+  { stage: 'PREPARING', label: 'Chuẩn bị' },
+  { stage: 'WRITING', label: 'AI viết kịch bản' },
+  { stage: 'VALIDATING', label: 'Kiểm tra kịch bản' },
+  { stage: 'SAVING', label: 'Lưu phân cảnh' },
+];
 
 export const ContentEditorPage: React.FC = () => {
   if (typeof document !== 'undefined') document.title = 'Veltrix AI - Studio Kịch bản';
@@ -27,12 +39,13 @@ export const ContentEditorPage: React.FC = () => {
   const estimatedSeconds = Math.round(scenes.reduce((sum, scene) => sum + (Number.isFinite(scene.estimatedDuration) ? scene.estimatedDuration : 0), 0));
   const generation = useRef<{ controller: AbortController; contentId: string | null } | null>(null);
   const generating = useRef(false);
+  const [jobProgress, setJobProgress] = useState<JobProgress | null>(null);
+  const [jobStartedAt, setJobStartedAt] = useState<number | null>(null);
 
   useEffect(() => () => generation.current?.controller.abort(), []);
   
   // Form state
   const [topic, setTopic] = useState('');
-  const [language,setLanguage]=useState('');
   const [platform, setPlatform] = useState(user?.preferences?.platform || 'tiktok');
   const [audience, setAudience] = useState(user?.preferences?.audience ?? 'Gen Z, thích hài hước');
   const [tone, setTone] = useState(user?.preferences?.tone || 'funny');
@@ -64,7 +77,7 @@ export const ContentEditorPage: React.FC = () => {
       setScenes([]);
       setGeneratedTarget(null);
       setEditorState('EMPTY');
-      setTopic(''); setLanguage('');
+      setTopic('');
       setPlatform(preferences.current?.platform || 'tiktok');
       setAudience(preferences.current?.audience ?? 'Gen Z, thích hài hước');
       setTone(preferences.current?.tone || 'funny');
@@ -82,7 +95,6 @@ export const ContentEditorPage: React.FC = () => {
               if (typeof settings.cta === 'string') setCta(settings.cta);
               if (typeof settings.creativeBrief === 'string') setCreativeBrief(settings.creativeBrief);
               if (typeof settings.visualStyle === 'string') setVisualStyle(settings.visualStyle);
-              if (typeof settings.language === 'string') setLanguage(settings.language);
               if (typeof settings.topic === 'string') setTopic(settings.topic);
               if (['tiktok', 'shorts', 'reels'].includes(settings.platform)) setPlatform(settings.platform);
               if (typeof settings.audience === 'string') setAudience(settings.audience);
@@ -113,6 +125,8 @@ export const ContentEditorPage: React.FC = () => {
     generation.current = currentGeneration;
     generating.current = true;
     setEditorState('LOADING');
+    setJobStartedAt(Date.now());
+    setJobProgress({ stage: 'SUBMITTING', step: 0, totalSteps: 0, message: 'Đang gửi yêu cầu tới máy chủ' });
     const config = { signal: controller.signal, timeout: 30000 };
 
     try {
@@ -133,7 +147,7 @@ export const ContentEditorPage: React.FC = () => {
       if (!currentContentId) throw new Error('Không tìm thấy nội dung');
       
       const res = await api.post(`/contents/${currentContentId}/generate`, {
-        topic, platform, audience, tone, language: language || capabilities.languages[0], durationSeconds: effectiveDuration, sceneCount: effectiveCount,
+        topic, platform, audience, tone, language: capabilities.languages[0], durationSeconds: effectiveDuration, sceneCount: effectiveCount,
         structure: capabilities?.advanced ? structure : 'auto', cta: capabilities?.advanced ? cta : '',
         creativeBrief: capabilities?.creativeDirection ? creativeBrief : '', visualStyle: capabilities?.creativeDirection ? visualStyle : ''
       }, config);
@@ -144,7 +158,9 @@ export const ContentEditorPage: React.FC = () => {
       const job = await waitForContentJob(async () => {
         const status = await api.get(`/jobs/${jobId}`, config);
         return status.data.data;
-      }, controller.signal);
+      }, controller.signal, {
+        onUpdate: (polled) => { if (!controller.signal.aborted && polled.progress) setJobProgress(polled.progress); },
+      });
       if (job.status !== 'COMPLETED') {
         throw new Error(job.failedReason || (job.status === 'CANCELLED' ? 'Tác vụ đã bị hủy' : 'Tạo kịch bản thất bại'));
       }
@@ -191,6 +207,19 @@ export const ContentEditorPage: React.FC = () => {
               className="w-full h-[120px] px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg-surface)] text-[15px] text-[var(--color-text-main)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all resize-none"
               placeholder="VD: Review phim Kẻ trộm mặt trăng 4"
             />
+            {capabilities?.enabled && (
+              <IdeaSuggestions
+                seed={topic}
+                disabled={editorState === 'LOADING'}
+                onApply={(idea) => {
+                  setTopic(idea.topic);
+                  setPlatform(idea.platform);
+                  setAudience(idea.audience);
+                  setTone(idea.tone);
+                  if (capabilities.durations.includes(idea.durationSeconds)) { setDurationSeconds(idea.durationSeconds); setSceneCount(0); }
+                }}
+              />
+            )}
           </div>
 
           <Dropdown 
@@ -223,7 +252,6 @@ export const ContentEditorPage: React.FC = () => {
           />
           {capabilityError && <p role="alert" className="text-sm text-red-600">{capabilityError}</p>}
           {capabilities && <fieldset disabled={editorState === 'LOADING'} className="space-y-4 border-t border-slate-200 pt-5">
-            <Dropdown label="Ngôn ngữ" value={language || capabilities.languages[0]} onChange={event=>setLanguage(event.target.value)} options={capabilities.languages.map((value:string)=>({label:value,value}))}/>
             <legend className="text-sm font-semibold text-indigo-700 px-1">AI {capabilities.name} ? v{capabilities.revision}</legend>
             <p className="text-xs text-slate-500">{Math.max(...capabilities.durations)} giây; tối đa {capabilities.maxScenes} cảnh theo cấu hình.</p>
             <Dropdown label="Thời lượng mục tiêu" value={effectiveDuration} onChange={event => { setDurationSeconds(Number(event.target.value)); setSceneCount(0); }} options={capabilities.durations.map((seconds: number) => ({ label: seconds >= 60 ? `${Math.floor(seconds / 60)} phút${seconds % 60 ? ` ${seconds % 60} giây` : ''}` : `${seconds} giây`, value: String(seconds) }))} />
@@ -287,8 +315,10 @@ export const ContentEditorPage: React.FC = () => {
                   <Sparkles size={24} className="text-[var(--color-primary)] animate-pulse" />
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-[var(--color-text-main)] mb-2">AI đang sáng tác...</h3>
-              <p className="text-[var(--color-text-sub)] text-sm">Vui lòng đợi vài giây để hệ thống tổng hợp thông tin.</p>
+              <h3 className="text-lg font-bold text-[var(--color-text-main)] mb-4">AI đang sáng tác...</h3>
+              <div className="w-full max-w-sm bg-white rounded-xl border border-[var(--color-border)] p-5">
+                <JobProgressSteps steps={CONTENT_STEPS} progress={jobProgress} startedAt={jobStartedAt} />
+              </div>
             </div>
           )}
 

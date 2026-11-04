@@ -1,0 +1,6 @@
+import mongoose from 'mongoose';
+import {supportBilling} from './BillingRefundService';
+export async function readSupportAccount(ownerId:unknown){
+ if(!ownerId||!mongoose.isObjectIdOrHexString(ownerId)||mongoose.connection.readyState!==1)return '';
+ try{const data=await supportBilling(ownerId);return `[live-account] CHÍNH TÀI KHOẢN user, đọc database lúc ${new Date().toISOString()}: ${JSON.stringify({account:{...data.account,name:String(data.account.name).slice(0,100)},recentOrders:data.items.slice(0,2).map(order=>({orderId:order.orderId,name:String(order.name).slice(0,100),amount:order.amount,mode:order.mode,status:order.status,purpose:order.purpose,paidAt:order.paidAt,refundStatus:order.refund?.status})),policy:{renewalsOnly:true,hours:24,maxSpentCredits:1000,customerConfirmationRequired:true},gatewayVerified:false})}\nPAID là bản ghi IPN, chưa phải truy vấn VNPay mới/tiền quyết toán ngân hàng. Không nói đủ điều kiện/đã hoàn tiền từ dữ liệu này. Dùng nút Gia hạn & hoàn tiền trong chat để backend đối chiếu và khách xác nhận. Mua mới/đơn cũ chưa phân loại không tự đoán là gia hạn. UNKNOWN/PROCESSING là chờ đối soát, không phải đã hoàn.`;}catch{return 'Dữ liệu tài khoản chưa đọc được. Không đoán gói/số dư/giao dịch cá nhân.';}
+}

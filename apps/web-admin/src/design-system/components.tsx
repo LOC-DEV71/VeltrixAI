@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { cloneElement, Fragment, isValidElement, useEffect, useId, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Button, Drawer as AntDrawer, Modal as AntModal, Skeleton, Table as AntTable, Tag, Tooltip } from 'antd';
 import type { DrawerProps, ModalProps, TableProps } from 'antd';
@@ -21,8 +21,8 @@ export function StatusBadge({ tone = 'info', children }: { tone?: 'success' | 'w
 export function MetricStrip({ items, loading }: { items: { label: string; value: ReactNode; note?: string; icon?: ReactNode }[]; loading?: boolean }) {
   return <div className="ds-metric-strip">{items.map(item => <div className="ds-metric" key={item.label}><span>{item.icon}{item.label}</span>{loading ? <Skeleton.Input active size="small" /> : <strong>{item.value}</strong>}{item.note && <small>{item.note}</small>}</div>)}</div>;
 }
-export function FilterChips({ values, onRemove, onReset }: { values: { key: string; label: string }[]; onRemove: (key: string) => void; onReset?: () => void }) {
-  return values.length > 0 ? <div className="ds-filter-chips"><span>Đang lọc</span>{values.map(v => <Tag key={v.key} closable onClose={() => onRemove(v.key)}>{v.label}</Tag>)}{onReset && <Button type="text" size="small" onClick={onReset}>Xóa bộ lọc</Button>}</div> : null;
+export function FilterChips({ values, onRemove, onReset }: { values: { key: string; label: string; removable?: boolean }[]; onRemove: (key: string) => void; onReset?: () => void }) {
+  return values.length > 0 ? <div className="ds-filter-chips"><span>Đang lọc</span>{values.map(v => <Tag key={v.key} closable={v.removable !== false} onClose={() => onRemove(v.key)}>{v.label}</Tag>)}{onReset && <Button type="text" size="small" onClick={onReset}>Xóa bộ lọc</Button>}</div> : null;
 }
 const csvCell = (value: unknown) => '"' + String(value ?? '').replace(/^[=+@-]/, "'$&").replace(/"/g, '""') + '"';
 export function DataTable<T extends object>(props: TableProps<T> & { exportName?: string; emptyDescription?: string }) {
@@ -46,7 +46,10 @@ export const Table = DataTable;
 export function Drawer(props: DrawerProps) { return <AntDrawer {...props} className={`ds-drawer ${props.className || ''}`} styles={{ ...props.styles, wrapper: { maxWidth: '100vw', ...(props.styles as any)?.wrapper } }} />; }
 export function Modal(props: ModalProps) { return <AntModal width={640} centered {...props} className={`ds-modal ${props.className || ''}`} />; }
 export function FormField({ label, help, unit, children }: { label: string; help?: string; unit?: string; children: ReactNode }) {
-  return <div className="ds-field"><label>{label}{unit && <small> · {unit}</small>}{help && <Tooltip title={help}><CircleHelp size={14} /></Tooltip>}</label>{children}{help && <p>{help}</p>}</div>;
+  const generatedId = useId();
+  const control = isValidElement<{id?: string; 'aria-describedby'?: string}>(children) && children.type !== Fragment ? children : null;
+  const id = control?.props.id || generatedId;
+  return <div className="ds-field"><label htmlFor={control ? id : undefined}>{label}{unit && <small> · {unit}</small>}{help && <Tooltip title={help}><CircleHelp size={14} /></Tooltip>}</label>{control ? cloneElement(control, { id, 'aria-describedby': help ? `${id}-help` : control.props['aria-describedby'] }) : children}{help && <p id={`${id}-help`}>{help}</p>}</div>;
 }
 export function ChangePreview({ before, after, labels = {} }: { before: Record<string, any>; after: Record<string, any>; labels?: Record<string, string> }) {
   const changes = Object.keys(after).filter(k => JSON.stringify(before[k]) !== JSON.stringify(after[k]) && k !== 'password');

@@ -1,8 +1,9 @@
 import { PaymentMethodsPanel } from '../components/PaymentMethodsPanel';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Modal } from 'antd';
-import {DeveloperTokensPanel} from '../components/DeveloperTokensPanel';
+import { DeveloperTokensPanel } from '../components/DeveloperTokensPanel';
+import { YouTubeConnect, useYouTube, parseYouTubeErrorMessage } from '../components/YouTubeConnect';
 import { CreditCard, HelpCircle, LogOut, Save, Settings, SlidersHorizontal, UserRound } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
@@ -29,6 +30,8 @@ export function AccountPage() {
   const { user, refreshUser, logout } = useAuth();
   const refresh = useRef(refreshUser); refresh.current = refreshUser;
   const location = useLocation(); const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const { youtube, reloadYouTube } = useYouTube();
   const [modal, contextHolder] = Modal.useModal();
   const [draft, setDraft] = useState(() => draftFrom(user));
   const [saved, setSaved] = useState(() => draftFrom(user));
@@ -36,11 +39,29 @@ export function AccountPage() {
   const [busy, setBusy] = useState(false); const [error, setError] = useState('');
   const [planName, setPlanName] = useState('');
 
+  // Toast and URL query param cleanup when returning from YouTube OAuth
+  useEffect(() => {
+    const result = params.get('youtube');
+    if (!result) return;
+    const reason = params.get('reason');
+    if (result === 'connected') {
+      toast.success('Đã kết nối tài khoản YouTube thành công!');
+    } else {
+      toast.error(parseYouTubeErrorMessage(reason));
+    }
+    void reloadYouTube();
+    const next = new URLSearchParams(params);
+    next.delete('youtube');
+    next.delete('reason');
+    setParams(next, { replace: true });
+  }, [params, setParams, reloadYouTube]);
+
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
   const section = tabs.find(t => t.path === location.pathname) || tabs[0];
   const profile = section.path === '/account/profile';
   const preferences = section.path === '/account/preferences';
+  const settings = section.path === '/account/settings';
   useEffect(() => {
     if (profile || preferences) return;
     const reload = () => { if (document.visibilityState === 'visible') void refresh.current(); };
@@ -97,20 +118,64 @@ export function AccountPage() {
           <label className="block text-sm font-medium space-y-2"><span>Tone giọng mặc định</span><select className={inputClass} value={draft.tone} disabled={busy} onChange={e=>update('tone',e.target.value)}><option value="funny">Hài hước, hóm hỉnh</option><option value="pro">Chuyên nghiệp</option><option value="drama">Cảm xúc, kịch tính</option></select></label>
         </>}
         <footer className="flex flex-wrap justify-between items-center gap-4 pt-5 border-t border-slate-100"><span className="text-xs text-slate-500">{dirty ? 'Có thay đổi chưa lưu' : 'Thông tin đã đồng bộ'}</span><div className="flex gap-3"><button type="button" disabled={!dirty || busy} onClick={()=>{setDraft(saved);setError('');}} className="rounded-xl border px-4 py-3 text-sm disabled:opacity-40">Hủy thay đổi</button><button disabled={!dirty || busy || profile && !draft.displayName.trim()} className="flex items-center gap-2 rounded-xl bg-indigo-600 text-white px-5 py-3 text-sm font-semibold disabled:opacity-40"><Save size={16}/>{busy ? 'Đang lưu...' : 'Lưu thay đổi'}</button></div></footer>
-      </form> : <div className="space-y-6">
-        <div className="pb-6 border-b border-slate-100"><h2 className="text-lg font-semibold">Tài khoản & quyền sử dụng</h2><dl className="mt-4 grid sm:grid-cols-2 gap-4 text-sm"><div><dt className="text-slate-500">Email đăng nhập</dt><dd className="mt-1 break-all font-medium">{user?.email}</dd></div><div><dt className="text-slate-500">Gói hiện tại</dt><dd className="mt-1 font-medium">{planName || 'Đang tải thông tin gói...'}</dd></div><div><dt className="text-slate-500">Credit khả dụng</dt><dd className="mt-1 font-medium">{(user?.credits?.total || 0).toLocaleString('vi-VN')} Credit</dd></div><div><dt className="text-slate-500">Ngày tham gia</dt><dd className="mt-1 font-medium">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN', {timeZone:'Asia/Saigon'}) : 'Chưa có thông tin'}</dd></div></dl><Link to="/pricing" className="inline-block mt-4 text-sm font-semibold text-indigo-600">Xem gói & nâng cấp →</Link></div>
-        
-        {section.path === '/account/settings' && <DeveloperTokensPanel />}
-        <BillingResult />
-        <PaymentMethodsPanel />
-        <TransactionHistory />
-        <OwnedSubscriptions />
+      </form> : settings ? (
+        <div className="space-y-6">
+          <div className="pb-6 border-b border-slate-100">
+            <h2 className="text-lg font-semibold text-slate-900">Tài khoản & Thiết lập</h2>
+            <dl className="mt-4 grid sm:grid-cols-2 gap-4 text-sm">
+              <div><dt className="text-slate-500">Email đăng nhập</dt><dd className="mt-1 break-all font-medium text-slate-800">{user?.email}</dd></div>
+              <div><dt className="text-slate-500">Trạng thái tài khoản</dt><dd className="mt-1 font-medium text-emerald-600">Đang hoạt động</dd></div>
+              <div><dt className="text-slate-500">Ngày tham gia</dt><dd className="mt-1 font-medium text-slate-800">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN', {timeZone:'Asia/Saigon'}) : 'Chưa có thông tin'}</dd></div>
+            </dl>
+          </div>
 
-        <SubscriptionProgress period={user?.subscriptionPeriod} free={user?.plan === 'FREE'} />
-        <div className="flex flex-wrap justify-between items-center gap-4"><div><h3 className="font-semibold">Hướng dẫn sử dụng</h3><p className="mt-1 text-sm text-slate-500">Xem lại các tính năng chính trong Workspace.</p></div><button onClick={()=>window.dispatchEvent(new Event(OPEN_WORKSPACE_TOUR))} className="flex items-center gap-2 border rounded-xl px-4 py-3 text-sm"><HelpCircle size={16}/>Mở hướng dẫn</button></div>
-        <div className="flex flex-wrap gap-5 text-sm text-indigo-600"><Link to="/docs">Tài liệu sử dụng</Link><Link to="/chinh-sach-dieu-khoan">Chính sách & Điều khoản</Link></div>
-        <div className="pt-6 border-t border-slate-100 flex flex-wrap justify-between gap-4 items-center"><div><h3 className="font-semibold">Phiên đăng nhập hiện tại</h3><p className="mt-1 text-sm text-slate-500">Đăng xuất khỏi trình duyệt đang sử dụng.</p></div><button disabled={busy} onClick={()=>void signOut()} className="flex gap-2 items-center rounded-xl bg-red-50 text-red-600 px-4 py-3 text-sm font-semibold"><LogOut size={16}/>Đăng xuất</button></div>
-      </div>}
+          <YouTubeConnect state={youtube} onChange={reloadYouTube} variant="card" returnPath="/account/settings" />
+
+          <DeveloperTokensPanel />
+
+          <div className="flex flex-wrap justify-between items-center gap-4 pt-4 border-t border-slate-100">
+            <div>
+              <h3 className="font-semibold text-sm text-slate-800">Hướng dẫn sử dụng</h3>
+              <p className="mt-1 text-xs text-slate-500">Xem lại các tính năng chính trong Workspace.</p>
+            </div>
+            <button type="button" onClick={() => window.dispatchEvent(new Event(OPEN_WORKSPACE_TOUR))} className="flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-medium hover:bg-slate-50 transition-colors">
+              <HelpCircle size={15}/>Mở hướng dẫn
+            </button>
+          </div>
+
+          <div className="flex flex-wrap gap-5 text-xs text-indigo-600">
+            <Link to="/docs" className="hover:underline">Tài liệu sử dụng</Link>
+            <Link to="/chinh-sach-dieu-khoan" className="hover:underline">Chính sách & Điều khoản</Link>
+          </div>
+
+          <div className="pt-6 border-t border-slate-100 flex flex-wrap justify-between gap-4 items-center">
+            <div>
+              <h3 className="font-semibold text-sm text-slate-800">Phiên đăng nhập hiện tại</h3>
+              <p className="mt-1 text-xs text-slate-500">Đăng xuất khỏi trình duyệt đang sử dụng.</p>
+            </div>
+            <button disabled={busy} onClick={() => void signOut()} className="flex gap-2 items-center rounded-xl bg-red-50 text-red-600 px-4 py-2.5 text-xs font-semibold hover:bg-red-100 transition-colors">
+              <LogOut size={15}/>Đăng xuất
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="pb-6 border-b border-slate-100">
+            <h2 className="text-lg font-semibold text-slate-900">Gói dịch vụ & Quyền lợi</h2>
+            <dl className="mt-4 grid sm:grid-cols-2 gap-4 text-sm">
+              <div><dt className="text-slate-500">Gói hiện tại</dt><dd className="mt-1 font-semibold text-base text-slate-900">{planName || 'Đang tải thông tin gói...'}</dd></div>
+              <div><dt className="text-slate-500">Credit khả dụng</dt><dd className="mt-1 font-semibold text-base text-indigo-600">{(user?.credits?.total || 0).toLocaleString('vi-VN')} Credit</dd></div>
+            </dl>
+            <Link to="/pricing" className="inline-block mt-4 text-sm font-semibold text-indigo-600 hover:underline">Xem gói & nâng cấp →</Link>
+          </div>
+
+          <BillingResult />
+          <PaymentMethodsPanel />
+          <TransactionHistory />
+          <OwnedSubscriptions />
+          <SubscriptionProgress period={user?.subscriptionPeriod} free={user?.plan === 'FREE'} />
+        </div>
+      )}
       
 
     </section>

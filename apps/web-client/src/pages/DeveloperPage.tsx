@@ -2,6 +2,7 @@ import {Link} from 'react-router-dom';
 import {Code2, KeyRound, Mic, ArrowRight} from 'lucide-react';
 import {DeveloperIntegration} from '../components/DeveloperIntegration';
 import {useSEO} from '../hooks/useSEO';
+import {developerUrl} from '../utils/developerUrl';
 
 export function DeveloperPage() {
   const baseUrl = import.meta.env.VITE_APP_URL || 'https://veltrix.ai';
@@ -9,14 +10,14 @@ export function DeveloperPage() {
   useSEO({
     title: 'Developer API - Veltrix AI',
     description: 'Tài liệu và API hướng dẫn dành cho nhà phát triển để tích hợp dịch vụ Text-to-Speech và Voice Clone của Veltrix AI vào ứng dụng của bạn.',
-    canonical: `${baseUrl}/developer`,
+    canonical: developerUrl,
     structuredData: {
       "@context": "https://schema.org",
       "@graph": [
         {
           "@type": "WebPage",
           "name": "Developer API",
-          "url": `${baseUrl}/developer`
+          "url": developerUrl
         },
         {
           "@type": "BreadcrumbList",
@@ -31,7 +32,7 @@ export function DeveloperPage() {
               "@type": "ListItem",
               "position": 2,
               "name": "Developer API",
-              "item": `${baseUrl}/developer`
+              "item": developerUrl
             }
           ]
         }

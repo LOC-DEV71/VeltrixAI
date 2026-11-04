@@ -1,0 +1,70 @@
+{
+  "default": "balanced",
+  "fallbackOrder": ["quality", "balanced", "fast"],
+  "presets": [
+    {
+      "id": "fast",
+      "label": "Nhanh",
+      "kind": "local",
+      "family": "sd15",
+      "model": "Lykon/dreamshaper-8",
+      "variant": "fp16",
+      "steps": 20,
+      "guidance": 7,
+      "scheduler": "dpmpp_2m_karras",
+      "width": 512,
+      "height": 896,
+      "memory": { "attentionSlicing": true, "vaeTiling": false, "cpuOffload": false },
+      "estimateSeconds": 6,
+      "downloadGB": 2.1
+    },
+    {
+      "id": "balanced",
+      "label": "Cân bằng",
+      "kind": "local",
+      "family": "sdxl",
+      "model": "stabilityai/stable-diffusion-xl-base-1.0",
+      "variant": "fp16",
+      "vae": "madebyollin/sdxl-vae-fp16-fix",
+      "lora": { "repo": "ByteDance/SDXL-Lightning", "file": "sdxl_lightning_4step_lora.safetensors" },
+      "steps": 4,
+      "guidance": 0,
+      "scheduler": "euler_trailing",
+      "width": 768,
+      "height": 1344,
+      "memory": { "attentionSlicing": false, "vaeTiling": true, "cpuOffload": true },
+      "estimateSeconds": 18,
+      "downloadGB": 7.4
+    },
+    {
+      "id": "quality",
+      "label": "Đẹp",
+      "kind": "local",
+      "family": "sdxl",
+      "model": "stabilityai/stable-diffusion-xl-base-1.0",
+      "variant": "fp16",
+      "vae": "madebyollin/sdxl-vae-fp16-fix",
+      "steps": 28,
+      "guidance": 6,
+      "scheduler": "dpmpp_2m_karras",
+      "width": 768,
+      "height": 1344,
+      "memory": { "attentionSlicing": true, "vaeTiling": true, "cpuOffload": true },
+      "estimateSeconds": 65,
+      "downloadGB": 7.0
+    },
+    {
+      "id": "cloud",
+      "label": "Cloud (FLUX)",
+      "kind": "fal",
+      "model": "flux/schnell",
+      "steps": 4,
+      "width": 768,
+      "height": 1344,
+      "estimateSeconds": 5,
+      "downloadGB": 0,
+      "requiresEnv": "FAL_KEY"
+    }
+  ],
+  "output": { "width": 1080, "height": 1920 }
+}

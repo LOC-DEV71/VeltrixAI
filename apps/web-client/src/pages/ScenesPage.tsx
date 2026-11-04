@@ -7,6 +7,7 @@ import { VoiceSelect, voiceGender } from '../components/ui/VoiceSelect';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import { audioUrl, downloadAudio, pendingJob, useTtsData } from '../hooks/useTtsData';
+import { VideoPanel } from '../components/VideoPanel';
 import toast from 'react-hot-toast';
 
 const VoicePanel = ({ scene, voices, hasMoreVoices,loadMoreVoices,voicesBusy,defaultVoice, processing, applying, generate, update, config, dirty, job, audioUrl, downloadAudio }: any) => {
@@ -215,6 +216,7 @@ export const ScenesPage: React.FC = () => {
     {(error || loadError) && <p role="alert" className="text-red-600">{loadError || error}</p>}
     {config && !config.available && <p role="alert" className="text-orange-600">Dịch vụ TTS chưa được khởi động.</p>}
     {loading && <p role="status">Đang tải phân cảnh...</p>}
+    {contentId && !loading && scenes.length > 0 && <VideoPanel contentId={contentId} busy={anyPending || scenes.some(s => s.narration !== s.savedNarration || s.voiceId !== s.savedVoiceId)} refreshKey={scenes.map(s => `${s._id}:${s.ttsAudioId ?? ''}`).join('|')} />}
     {!loading && !scenes.length && <p>Chưa có phân cảnh. Mở kịch bản từ dự án để tiếp tục.</p>}
     {scenes.map(scene => {
       const job = jobs.find(j => j.sceneId === scene._id); const processing = busy[scene._id] || pendingJob(job);

@@ -8,6 +8,8 @@ const schema=new Schema({
   status:{type:String,enum:['PENDING','PAID','FAILED'],default:'PENDING'},
   expiresAt:{type:Date,required:true},paidAt:Date,providerTransactionId:String,
   startsAt:Date,endsAt:Date,
+  purpose:{type:String,enum:['PURCHASE','RENEWAL']},renewalOfOrderId:Schema.Types.ObjectId,
+  refundLockedAt:Date,refundedAt:Date,
   mode:{type:String,enum:['sandbox','production'],required:true},
 },{timestamps:true});
 schema.index({ownerId:1,requestKey:1},{unique:true});

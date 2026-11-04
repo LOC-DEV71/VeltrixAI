@@ -2,7 +2,7 @@ import {GoogleGenerativeAI,type ResponseSchema} from '@google/generative-ai';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 export class AiProviderError extends Error {constructor(public readonly code:string,public readonly status=503){super(code);}}
-export interface AiGenerationRequest {instruction:string;prompt:string;schema:Record<string,any>;maxOutputTokens:number;timeoutMs:number;images?:Array<{bytes:Buffer;mime:'image/png'|'image/jpeg'|'image/webp'}>;}
+export interface AiGenerationRequest {instruction:string;prompt:string;schema:Record<string,any>;maxOutputTokens:number;timeoutMs:number;images?:Array<{bytes:Buffer;mime:'image/png'|'image/jpeg'|'image/webp'}>;imageFirst?:boolean;temperature?:number;/** Streams generated text as it arrives (local provider). */onToken?:(chunk:string)=>void;}
 export interface AiGenerationResult {text:string;usage?:{inputTokens:number;outputTokens:number};}
 export interface ContentAiProvider {readonly identity:{kind:'local'|'gemini';model:string};generate(request:AiGenerationRequest):Promise<AiGenerationResult>;}
 export const AI_LIMITS=Object.freeze({inputChars:12000,imageBytes:3*1024*1024,imagePixels:4096*4096,imageCount:1,outputBytes:2*1024*1024,timeoutMs:180000,queuedJobs:10});
@@ -38,10 +38,58 @@ export class LocalContentProvider implements ContentAiProvider {
   try{const response=await fetch(this.config.url+endpoint,{method:'POST',redirect:'error',headers:{Authorization:'Bearer '+this.config.token,'Content-Type':'application/json'},body:JSON.stringify(body),signal});const chunks:Uint8Array[]=[];let total=0;for await(const chunk of response.body as any){total+=chunk.length;if(total>AI_LIMITS.outputBytes)throw new AiProviderError('CONTENT_OUTPUT_LIMIT_EXCEEDED',400);chunks.push(chunk);}const text=Buffer.concat(chunks).toString('utf8');if(!response.ok)throw new AiProviderError(response.status===401||response.status===403?'CONTENT_PROVIDER_AUTH_FAILED':response.status===429?'CONTENT_QUEUE_FULL':/out of memory|cuda.*alloc|bad_alloc/i.test(text)?'CONTENT_PROVIDER_OUT_OF_MEMORY':response.status===400&&/context|tokens/i.test(text)?'CONTENT_CONTEXT_LIMIT_EXCEEDED':'CONTENT_PROVIDER_UNAVAILABLE');try{return JSON.parse(text);}catch{throw new AiProviderError('CONTENT_PROVIDER_INVALID_RESPONSE');}}
   catch(error){if(error instanceof AiProviderError)throw error;throw new AiProviderError(signal.aborted?'CONTENT_PROVIDER_TIMEOUT':'CONTENT_PROVIDER_UNAVAILABLE');}
  }
+ /** Server-sent events from llama-server; returns the same shape as a non-streamed completion. */
+ private async stream(endpoint:string,body:unknown,signal:AbortSignal,onToken:(chunk:string)=>void){
+  let response:Response;
+  try{response=await fetch(this.config.url+endpoint,{method:'POST',redirect:'error',headers:{Authorization:'Bearer '+this.config.token,'Content-Type':'application/json'},body:JSON.stringify(body),signal});}
+  catch{throw new AiProviderError(signal.aborted?'CONTENT_PROVIDER_TIMEOUT':'CONTENT_PROVIDER_UNAVAILABLE');}
+  if(!response.ok){const text=await response.text().catch(()=>'');throw new AiProviderError(response.status===401||response.status===403?'CONTENT_PROVIDER_AUTH_FAILED':response.status===429?'CONTENT_QUEUE_FULL':/out of memory|cuda.*alloc|bad_alloc/i.test(text)?'CONTENT_PROVIDER_OUT_OF_MEMORY':response.status===400&&/context|tokens/i.test(text)?'CONTENT_CONTEXT_LIMIT_EXCEEDED':'CONTENT_PROVIDER_UNAVAILABLE');}
+  let text='',finish:string|null=null,usage:any=null,buffer='',total=0;
+  try{
+   for await(const chunk of response.body as any){
+    total+=chunk.length;if(total>AI_LIMITS.outputBytes*4)throw new AiProviderError('CONTENT_OUTPUT_LIMIT_EXCEEDED',400);
+    buffer+=Buffer.from(chunk).toString('utf8');
+    let index;
+    while((index=buffer.indexOf('\n'))>=0){
+     const line=buffer.slice(0,index).trim();buffer=buffer.slice(index+1);
+     if(!line.startsWith('data:'))continue;
+     const data=line.slice(5).trim();if(data==='[DONE]')continue;
+     let event:any;try{event=JSON.parse(data);}catch{continue;}
+     const delta=event.choices?.[0]?.delta?.content;
+     if(typeof delta==='string'&&delta){text+=delta;if(Buffer.byteLength(text)>AI_LIMITS.outputBytes)throw new AiProviderError('CONTENT_OUTPUT_LIMIT_EXCEEDED',400);try{onToken(delta);}catch{/* display only */}}
+     if(event.choices?.[0]?.finish_reason)finish=event.choices[0].finish_reason;
+     if(event.usage)usage=event.usage;
+    }
+   }
+  }catch(error){if(error instanceof AiProviderError)throw error;throw new AiProviderError(signal.aborted?'CONTENT_PROVIDER_TIMEOUT':'CONTENT_PROVIDER_UNAVAILABLE');}
+  return {choices:[{finish_reason:finish,message:{content:text}}],usage};
+ }
  async generate(request:AiGenerationRequest):Promise<AiGenerationResult>{
-  validate(request);if(localInferenceActive)throw new AiProviderError('CONTENT_QUEUE_FULL',429);localInferenceActive=true;
-  try{const signal=AbortSignal.timeout(Math.min(request.timeoutMs,AI_LIMITS.timeoutMs));const messages=[{role:'system',content:request.instruction},{role:'user',content:request.prompt}];const applied=await this.post('/apply-template',{messages},signal);if(typeof applied.prompt!=='string')throw new AiProviderError('CONTENT_PROVIDER_INVALID_RESPONSE');const tokenized=await this.post('/tokenize',{content:applied.prompt,add_special:true},signal);if(!Array.isArray(tokenized.tokens))throw new AiProviderError('CONTENT_PROVIDER_INVALID_RESPONSE');const available=this.config.contextTokens-tokenized.tokens.length-(request.images?.length||0)*300-64,maxTokens=Math.min(request.maxOutputTokens,this.config.maxOutputTokens,available);if(maxTokens<128)throw new AiProviderError('CONTENT_CONTEXT_LIMIT_EXCEEDED',400);const content=request.images?.length?[{type:'text',text:request.prompt},...request.images.map(image=>({type:'image_url',image_url:{url:`data:${image.mime};base64,${image.bytes.toString('base64')}`}}))]:request.prompt;const result=await this.post('/v1/chat/completions',{model:this.identity.model,messages:[messages[0],{role:'user',content}],max_tokens:maxTokens,temperature:0.65,stream:false,reasoning_effort:'none',response_format:{type:'json_schema',json_schema:{name:'veltrix_scenes',strict:true,schema:request.schema}}},signal);if(result.choices?.[0]?.finish_reason==='length')throw new AiProviderError('CONTENT_OUTPUT_LIMIT_EXCEEDED',400);const text=result.choices?.[0]?.message?.content;if(typeof text!=='string'||!text.trim())throw new AiProviderError('CONTENT_PROVIDER_INVALID_RESPONSE');return {text,usage:result.usage?{inputTokens:result.usage.prompt_tokens,outputTokens:result.usage.completion_tokens}:undefined};}
-  finally{localInferenceActive=false;}
+  validate(request);
+  if(request.imageFirst!==undefined&&typeof request.imageFirst!=='boolean'||request.temperature!==undefined&&(!Number.isFinite(request.temperature)||request.temperature<0||request.temperature>1))throw new AiProviderError('CONTENT_INPUT_LIMIT_EXCEEDED',400);
+  if(localInferenceActive)throw new AiProviderError('CONTENT_QUEUE_FULL',429);
+  localInferenceActive=true;
+  try{
+   const signal=AbortSignal.timeout(Math.min(request.timeoutMs,AI_LIMITS.timeoutMs));
+   const messages=[{role:'system',content:request.instruction},{role:'user',content:request.prompt}];
+   const applied=await this.post('/apply-template',{messages},signal);
+   if(typeof applied.prompt!=='string')throw new AiProviderError('CONTENT_PROVIDER_INVALID_RESPONSE');
+   const tokenized=await this.post('/tokenize',{content:applied.prompt,add_special:true},signal);
+   if(!Array.isArray(tokenized.tokens))throw new AiProviderError('CONTENT_PROVIDER_INVALID_RESPONSE');
+   // Gemma's highest supported visual budget is 1120; include markers and padding.
+   const available=this.config.contextTokens-tokenized.tokens.length-(request.images?.length||0)*1152-64;
+   const maxTokens=Math.min(request.maxOutputTokens,this.config.maxOutputTokens,available);
+   if(maxTokens<128)throw new AiProviderError('CONTENT_CONTEXT_LIMIT_EXCEEDED',400);
+   const imageParts=request.images?.map(image=>({type:'image_url',image_url:{url:`data:${image.mime};base64,${image.bytes.toString('base64')}`}}))||[];
+   const textPart={type:'text',text:request.prompt};
+   const content=imageParts.length?(request.imageFirst?[...imageParts,textPart]:[textPart,...imageParts]):request.prompt;
+   const body={model:this.identity.model,messages:[messages[0],{role:'user',content}],max_tokens:maxTokens,temperature:request.temperature??0.65,stream:!!request.onToken,reasoning_effort:'none',response_format:{type:'json_schema',json_schema:{name:'veltrix_scenes',strict:true,schema:request.schema}}};
+   const result=request.onToken?await this.stream('/v1/chat/completions',body,signal,request.onToken):await this.post('/v1/chat/completions',body,signal);
+   if(result.choices?.[0]?.finish_reason==='length')throw new AiProviderError('CONTENT_OUTPUT_LIMIT_EXCEEDED',400);
+   const text=result.choices?.[0]?.message?.content;
+   if(typeof text!=='string'||!text.trim())throw new AiProviderError('CONTENT_PROVIDER_INVALID_RESPONSE');
+   return {text,usage:result.usage?{inputTokens:result.usage.prompt_tokens,outputTokens:result.usage.completion_tokens}:undefined};
+  }finally{localInferenceActive=false;}
  }
 }
 export function createContentAiProvider(configuration=getAiConfiguration()):ContentAiProvider{return configuration.kind==='local'?new LocalContentProvider(configuration):new GeminiContentProvider(configuration);}

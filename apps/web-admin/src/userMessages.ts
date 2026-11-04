@@ -1,4 +1,8 @@
 export const ERROR_MESSAGES: Record<string,string> = {
+  ADMIN_INVALID_IP:'Nhập địa chỉ IPv4 hoặc IPv6 hợp lệ.',
+  ADMIN_IP_HISTORY_UNAVAILABLE:'Chưa tải được lịch sử IP. Vui lòng thử lại.',
+  CONTENT_PROVIDER_UNAVAILABLE:'Dịch vụ AI viết nội dung chưa kết nối được. Kiểm tra kết nối và readiness của dịch vụ tại Tổng quan.',
+  CONTENT_PROVIDER_TIMEOUT:'Dịch vụ AI không trả kết quả trong thời gian cho phép. Kiểm tra tải hệ thống và hàng đợi.',
   ADMIN_CONFIRMATION_REQUIRED:'Cần xác nhận và nhập lý do ít nhất 5 ký tự.',
   ADMIN_INVALID_INPUT:'Thông tin quản trị chưa hợp lệ. Kiểm tra các trường và giới hạn.',
   ADMIN_REVISION_CONFLICT:'Dữ liệu đã được cập nhật ở phiên khác. Tải lại trước khi lưu.',

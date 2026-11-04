@@ -50,6 +50,8 @@ Provision là bước duy nhất tải Internet. Start chỉ đọc, xác minh v
 
 Local mặc định context 8.192 token, output tối đa 4.096, một slot inference. Batch 128/ubatch 64; GPU layers auto với margin 768 MiB, KV q8, projector CPU. Các lượt thử text/ảnh chạy thành công trên máy này, GPU dùng khoảng 2,9 GB; chưa ghi nhận số layer GPU chính xác. Có thể giảm `AI_CONTEXT_TOKENS=4096` khi cần; adapter kiểm tra token prompt trước inference.
 
+Dịch vụ hiện cho ngân sách ảnh tối đa 1120 token (`AI_IMAGE_MAX_TOKENS`, mức được hỗ trợ 70/140/280/560/1120), cần đặt trong môi trường chạy `start.cjs`. Adapter dành 1152 token/ảnh gồm padding khi kiểm tra context. Support giữ screenshot tới 1536 pixel và dùng thứ tự image → question với temperature 0,2; các yêu cầu content không đổi thứ tự/temperature mặc định hoặc kích thước ảnh 768 pixel. Xem [luồng đọc ảnh Support](SUPPORT_AI_KNOWLEDGE.md).
+
 Giới hạn hạ tầng: input 12.000 ký tự, timeout 180 giây mỗi inference, tối đa 10 job local chờ/đang chạy, một ảnh/request, 3 MiB/ảnh, chiều tối đa 4.096 và tối đa 16.777.216 pixel. Ảnh được decode đầy đủ PNG/JPEG/WebP, từ chối SVG/ảnh động, chuẩn hóa PNG ≤768px. Tối đa 10 asset lưu cho một tài khoản; xóa bằng endpoint khi không còn job sử dụng. Giới hạn này là trần hạ tầng, không thay quota gói hiện có.
 
 Schema cảnh validate phía server, JSON repair hữu hạn. Không tăng output vô hạn để đáp ứng gói dài: content vượt cửa sổ local có thể thất bại an toàn và hoàn reservation; chưa nghiệm thu kịch bản 5–10 phút. Queue được chặn transaction trước hold credit. API vẫn dùng auth/CSRF, quyền sở hữu và plan snapshot; header `Idempotency-Key` tùy chọn chống tạo/hold trùng, dùng lại với body khác trả 409.

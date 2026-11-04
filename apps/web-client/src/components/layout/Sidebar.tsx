@@ -4,11 +4,12 @@ import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { api } from '../../api';
-import { Plus, LayoutDashboard, PenTool, Volume2, Mic2, Star, Sparkles, Settings, SlidersHorizontal, CreditCard, User, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
+import { Plus, LayoutDashboard, PenTool, Volume2, Mic2, Star, Sparkles, Settings, SlidersHorizontal, CreditCard, User, HelpCircle, LogOut, ChevronRight, Wand2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { OPEN_WORKSPACE_TOUR } from './WorkspaceTour';
+import {supportUrl} from '../../utils/supportUrl';
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
@@ -81,7 +82,8 @@ export const Sidebar: React.FC = () => {
           </div>
           {[
             { name: 'Quản lý Workspace', path: '/workspace', icon: <LayoutDashboard size={20} /> },
-            { name: 'Studio Viết kịch bản', path: '/content', icon: <PenTool size={20} /> }
+            { name: 'Studio Viết kịch bản', path: '/content', icon: <PenTool size={20} /> },
+            { name: 'Video tự động', path: '/auto-video', icon: <Wand2 size={20} /> }
           ].map((item) => {
             const isActive = location.pathname.startsWith(item.path) && item.path !== '#';
             return (
@@ -180,9 +182,9 @@ export const Sidebar: React.FC = () => {
                     Tài liệu hướng dẫn
                   </Link>
                   <div className="h-[1px] bg-gray-100 my-1 mx-3" />
-                  <button className="w-full flex items-center px-4 py-2.5 text-sm text-[var(--color-text-main)] hover:bg-gray-50 transition-colors cursor-pointer text-left">
+                  {supportUrl && <a href={supportUrl} target="_blank" rel="noopener noreferrer" className="w-full flex items-center px-4 py-2.5 text-sm text-[var(--color-text-main)] hover:bg-gray-50 transition-colors cursor-pointer text-left">
                     Trung tâm hỗ trợ
-                  </button>
+                  </a>}
                   <Link to="/chinh-sach-dieu-khoan" className="w-full flex items-center px-4 py-2.5 text-sm text-[var(--color-text-main)] hover:bg-gray-50 transition-colors cursor-pointer text-left">
                     Chính sách & Điều khoản
                   </Link>

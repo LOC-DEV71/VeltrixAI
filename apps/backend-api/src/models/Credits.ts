@@ -59,6 +59,7 @@ export interface ICreditLot extends Document {
   grantSnapshot?: any;
   billingOrderId?: mongoose.Types.ObjectId;
   source?: 'ADMIN';
+  refundBlocked?: boolean;
 }
 
 const CreditLotSchema = new Schema<ICreditLot>({
@@ -69,6 +70,7 @@ const CreditLotSchema = new Schema<ICreditLot>({
   grantSnapshot: Schema.Types.Mixed,
   billingOrderId: {type:Schema.Types.ObjectId,ref:'BillingOrder',index:true},
   source: { type: String, enum: ['ADMIN'] },
+  refundBlocked: {type:Boolean},
 }, { timestamps: true });
 
 export const CreditLot: Model<ICreditLot> = mongoose.models.CreditLot || mongoose.model('CreditLot', CreditLotSchema);
@@ -95,11 +97,12 @@ const CreditReservationSchema = new Schema<ICreditReservation>({
   status: { type: String, enum: ['HELD', 'SETTLED', 'RELEASED'], default: 'HELD' },
 }, { timestamps: true });
 
+CreditReservationSchema.index({'allocations.lotId':1,status:1});
 export const CreditReservation: Model<ICreditReservation> = mongoose.models.CreditReservation || mongoose.model('CreditReservation', CreditReservationSchema);
 
 export interface ICreditLedger extends Document {
   walletId: mongoose.Types.ObjectId;
-  transactionType: 'GRANT' | 'RESERVE' | 'SETTLE' | 'RELEASE' | 'EXPIRE';
+  transactionType: 'GRANT' | 'RESERVE' | 'SETTLE' | 'RELEASE' | 'EXPIRE' | 'REFUND_HOLD' | 'REFUND_RELEASE';
   deltaAvailable: number;
   deltaReserved: number;
   referenceId: string;
@@ -107,7 +110,7 @@ export interface ICreditLedger extends Document {
 
 const CreditLedgerSchema = new Schema<ICreditLedger>({
   walletId: { type: Schema.Types.ObjectId, ref: 'Wallet', required: true },
-  transactionType: { type: String, enum: ['GRANT', 'RESERVE', 'SETTLE', 'RELEASE', 'EXPIRE'], required: true },
+  transactionType: { type: String, enum: ['GRANT', 'RESERVE', 'SETTLE', 'RELEASE', 'EXPIRE', 'REFUND_HOLD', 'REFUND_RELEASE'], required: true },
   deltaAvailable: { type: Number, required: true },
   deltaReserved: { type: Number, required: true },
   referenceId: { type: String, required: true },

@@ -40,7 +40,14 @@ const port = process.env.PORT || 3001;
 
 // Middlewares
 app.use(helmet());
-const corsOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : false;
+// Support reuses Creator's session cookies with its own origin allowlist and bounded input.
+app.use('/api/support', require('./routes/support').default);
+const rawOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || '').split(',').map((s) => s.trim()).filter(Boolean);
+if (process.env.YOUTUBE_CLIENT_URL) {
+  const ytOrigin = process.env.YOUTUBE_CLIENT_URL.trim().replace(/\/$/, '');
+  if (ytOrigin && !rawOrigins.includes(ytOrigin)) rawOrigins.push(ytOrigin);
+}
+const corsOrigins = rawOrigins.length > 0 ? rawOrigins : false;
 console.log('CORS Origins:', corsOrigins);
 app.use(cors({ 
   origin: corsOrigins, 
@@ -63,6 +70,10 @@ app.use('/api/voices', require('./routes/voices').default);
 app.use('/api/voice-enrollments', require('./routes/voiceEnrollments').default);
 app.use('/api/scenes', require('./routes/scenes').default);
 app.use('/api/media', require('./routes/media').default);
+app.use('/api/videos', require('./routes/videos').default);
+app.use('/api/youtube', require('./routes/youtube').default);
+app.use('/api/auto-videos', require('./routes/autoVideos').default);
+app.use('/api/images', require('./routes/images').default);
 app.use('/api/plans', require('./routes/plans').default);
 app.use('/api/billing', require('./routes/billing').default);
 app.use('/api/notifications', require('./routes/notifications').default);
@@ -118,6 +129,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 import mongoose from 'mongoose';
+import {startRefundMaintenance} from './services/BillingRefundService';
+let stopRefundMaintenance:(()=>void)|undefined;
 
 const server = createServer(app);
 const billingSockets=attachBillingRealtime(server,[...(Array.isArray(corsOrigins)?corsOrigins:[]),...(process.env.NODE_ENV==='production'?[]:['http://localhost:5173','http://localhost:5174'])]);
@@ -125,6 +138,9 @@ server.listen(port, async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI as string);
     console.log('Connected to MongoDB');
+    stopRefundMaintenance=startRefundMaintenance();
+    // Advances "topic -> video" runs. Rendering itself runs in the separate video worker.
+    require('./services/AutoVideoService').startAutoVideoTicker();
   } catch (err) {
     console.error('MongoDB connection error:', err);
   }
@@ -135,6 +151,7 @@ server.listen(port, async () => {
 process.on('SIGTERM', () => {
   console.log('SIGTERM received. Shutting down gracefully.');
   billingSockets.close();
+  stopRefundMaintenance?.();
   server.close(() => {
     console.log('Server closed.');
     process.exit(0);

@@ -1,6 +1,6 @@
-import {api} from '../api';
+import {developerApiUrl} from '../utils/developerApiUrl';
 export function DeveloperIntegration() {
-  const base = new URL(api.defaults.baseURL || '/api', window.location.origin).href.replace(/\/$/, '')+'/developer/v1';
+  const base = developerApiUrl;
   const example = `# Chạy ở máy chủ. TOKEN là biến môi trường chứa API token.
 curl "${base}/voices?page=1" \\
   -H "Authorization: Bearer $TOKEN"

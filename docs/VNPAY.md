@@ -33,7 +33,7 @@ Nếu thiếu cấu hình, đăng ký bị khóa và backend trả `PAYMENT_PROV
 - Multiple paid subscriptions are supported. Each order keeps its own start/end dates and immutable entitlement snapshot. Every paid order grants its monthly credits once. Switching an unexpired subscription changes active entitlements without charging or granting credits again; all periods continue running. If the selected subscription expires, the latest unexpired purchase becomes active; otherwise effective entitlements fall back to Free.
 - Token Visa chỉ tạo sau khi đồng ý và IPN thành công. Database lưu token AES-256-GCM, mã băm, loại thẻ và 4 số cuối. Không lưu PAN/CVV. VNPay không trả ngày hết hạn trong contract hiện tại nên giao diện không tự bịa ngày hết hạn.
 - Token không xuất hiện trong API danh sách thẻ. Khi chọn thẻ đã lưu để đăng ký, token chỉ gửi sang URL thanh toán HTTPS VNPay theo contract của họ. Không log URL/query callback; reverse proxy cũng phải bỏ query khỏi access log. Thiết lập `Referrer-Policy: no-referrer` tại proxy đối với callback token.
-- Sandbox và production được tách theo trường `mode`; không dùng thẻ sandbox để thanh toán production. Chưa có giao diện xóa token, hoàn tiền hay đối soát tự động. Không xoay khóa mã hóa tùy tiện: cần migration để mã hóa lại token trước khi thay khóa.
+- Sandbox và production được tách theo trường `mode`; không dùng thẻ sandbox để thanh toán production. Chưa có giao diện xóa token. Hoàn tiền gia hạn và querydr đối soát được cung cấp trong Support khi cấu hình API được bật; xem [kiểm soát hoàn tiền](SUPPORT_REFUNDS.md). Không xoay khóa mã hóa tùy tiện: cần migration để mã hóa lại token trước khi thay khóa.
 
 ## Kiểm tra trước khi mở thu tiền
 
@@ -51,3 +51,7 @@ Tài liệu chính thức: [VNPay PAY](https://sandbox.vnpayment.vn/apis/docs/th
 Client: `/api/billing/orders`, `/api/billing/subscriptions`, POST `/api/billing/subscriptions/:id/select` with CSRF and expectedCurrentId. Admin OWNER/ADMIN: `/api/admin/billing/orders`, `/summary`, `/credits`. All lists use safe projections and owner scoping; sandbox amounts are separate from real payments. Cash summary is confirmed gross payments, not bank settlement or net revenue.
 
 Authenticated `/api/notifications/stream` sends SSE updates from persisted database notifications every 2 seconds, including after reconnect. Payment success notification is created inside the same MongoDB transaction, unique per order. Read endpoints require CSRF. The frontend bell shows unread count, read-all and a payment-history link. Proxy must preserve SSE and disable buffering.
+
+## Hoàn tiền gia hạn trong Support
+
+Chỉ gia hạn trong 24 giờ, tối đa 1.000 Credit tiêu thụ từ lần đó; khách xác nhận hoàn toàn bộ. Backend đối chiếu bằng chứng nội bộ và chữ ký querydr/refund VNPay, khóa đơn duy nhất và không gửi lại khi kết quả chưa rõ. Thiết lập VNPAY_REFUND_ENABLED, VNPAY_SERVER_IP và endpoint production được cấp; không dùng endpoint do model hoặc client gửi. [Cấu hình, trạng thái và kiểm thử](SUPPORT_REFUNDS.md).

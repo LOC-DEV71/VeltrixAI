@@ -17,7 +17,7 @@ export class CreditService {
         return existing;
       }
       const wallets = await Wallet.find({ userId }).session(session);
-      const lots = await CreditLot.find({ walletId: { $in: wallets.map(w=>w._id) }, available: { $gt: 0 }, expiresAt: { $gt: new Date() } }).sort({ expiresAt: 1, _id: 1 }).session(session);
+      const lots = await CreditLot.find({ walletId: { $in: wallets.map(w=>w._id) }, refundBlocked:{$ne:true}, available: { $gt: 0 }, expiresAt: { $gt: new Date() } }).sort({ expiresAt: 1, _id: 1 }).session(session);
       const eligible = lots.filter(l => { const wallet=wallets.find(w=>w._id.equals(l.walletId)); return wallet?.bucket === 'FREE' || paidAllowed || l.source === 'ADMIN'; });
       const budgets = new Map(wallets.map(w=>[w._id.toString(), Math.max(0,w.available)]));
       const allocations: { lotId: mongoose.Types.ObjectId; walletId: mongoose.Types.ObjectId; amount: number }[] = [];
@@ -144,7 +144,7 @@ export class CreditService {
         throw new Error('INSUFFICIENT_CREDITS');
       }
 
-      const lots = await CreditLot.find({ walletId: wallet._id, available: { $gt: 0 }, expiresAt: { $gt: new Date() } })
+      const lots = await CreditLot.find({ walletId: wallet._id, refundBlocked:{$ne:true}, available: { $gt: 0 }, expiresAt: { $gt: new Date() } })
         .sort({ expiresAt: 1 })
         .session(session);
 

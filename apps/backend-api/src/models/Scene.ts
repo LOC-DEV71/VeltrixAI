@@ -14,6 +14,9 @@ export interface IScene extends Document {
   revision: number;
   voiceId?: mongoose.Types.ObjectId;
   ttsAudioId?: mongoose.Types.ObjectId;
+  /** Visual plan from VideoStoryboard (type, title, icon, data...), valid while storyboardRevision === revision. */
+  storyboard?: Record<string, any> | null;
+  storyboardRevision?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,6 +35,8 @@ const SceneSchema = new Schema<IScene>({
   revision: { type: Number, default: 0 },
   voiceId: { type: Schema.Types.ObjectId, ref: 'Voice' },
   ttsAudioId: { type: Schema.Types.ObjectId, ref: 'MediaAsset' },
+  storyboard: { type: Schema.Types.Mixed, default: null },
+  storyboardRevision: { type: Number },
 }, { timestamps: true });
 
 export const Scene: Model<IScene> = mongoose.models.Scene || mongoose.model<IScene>('Scene', SceneSchema);

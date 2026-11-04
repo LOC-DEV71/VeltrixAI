@@ -6,6 +6,7 @@ import { WorkspacePage } from './pages/WorkspacePage';
 import { TTSPage } from './pages/TTSPage';
 import { ContentEditorPage } from './pages/ContentEditorPage';
 import { ScenesPage } from './pages/ScenesPage';
+import { AutoVideoPage } from './pages/AutoVideoPage';
 import { VoicesPage } from './pages/voices/VoicesPage';
 import { LoginPage } from './pages/LoginPage';
 import { LandingPage } from './pages/LandingPage';
@@ -29,7 +30,7 @@ const VoicesLayout = () => {
   const { user, loading } = useAuth();
   if (loading) return <div className="p-8">Đang tải...</div>;
   if (user) return <AppLayout />;
-  return <div className="min-h-screen bg-slate-50"><header className="flex justify-between items-center px-8 py-5 bg-white border-b"><Link to="/" className="font-bold text-xl">Veltrix AI</Link><Link to="/login" state={{ returnTo: '/voices' }} className="text-indigo-600">Đăng nhập</Link></header><Outlet /></div>;
+  return <div className="min-h-screen bg-slate-50"><header className="flex justify-between items-center px-8 py-5 bg-white border-b"><Link to="/"><img src="/logo-full.png" alt="Veltrix AI" className="h-[50px]" /></Link><Link to="/login" state={{ returnTo: '/voices' }} className="text-indigo-600">Đăng nhập</Link></header><Outlet /></div>;
 };
 const App: React.FC = () => {
   // Define a mock client id or read from env. Must be valid for real use, but this allows rendering.
@@ -54,6 +55,7 @@ const App: React.FC = () => {
             <Route path="/workspace" element={<WorkspacePage />} />
             <Route path="/content" element={<ContentEditorPage />} />
             <Route path="/content/scenes" element={<ScenesPage />} />
+            <Route path="/auto-video" element={<AutoVideoPage />} />
             <Route path="/tts" element={<TTSPage />} />
             <Route path="/account" element={<Navigate to="/account/profile" replace />} />
             <Route path="/account/profile" element={<AccountPage />} />
