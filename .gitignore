@@ -57,5 +57,4 @@ __pycache__/
 packages/video-renderer/out/
 packages/video-renderer/public/spike/*.wav
 
-# Reference clones (not part of the product; e.g. _ref/OpenMontage)
-_ref/
+# Reference clones are git submodules (see .gitmodules); nothing else under _ref is tracked.
