@@ -62,7 +62,6 @@ export function AccountPage() {
   const profile = section.path === '/account/profile';
   const preferences = section.path === '/account/preferences';
   const settings = section.path === '/account/settings';
-  const billing = section.path === '/account/billing';
   useEffect(() => {
     if (profile || preferences) return;
     const reload = () => { if (document.visibilityState === 'visible') void refresh.current(); };

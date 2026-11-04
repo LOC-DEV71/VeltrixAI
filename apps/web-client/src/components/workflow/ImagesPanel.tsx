@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { api } from '../../api';
 import { audioUrl } from '../../hooks/useTtsData';
 import { errorMessage } from '../../utils/userMessages';
-import { formatDuration, useImagePresets } from '../ImageQualityPicker';
+import { useImagePresets } from '../ImageQualityPicker';
 import { formatRemaining, formatSeconds, type RunDetails, type SceneRow } from './workflowModel';
 
 const FALLBACK_REASON: Record<string, string> = {
@@ -111,13 +111,13 @@ const ImageTile: React.FC<{ run: RunDetails; scene: SceneRow; onChanged: () => v
   );
 };
 
-const ThumbnailTile: React.FC<{ run: RunDetails; onChanged: () => void; presets: ReturnType<typeof useImagePresets> }> = ({ run, onChanged, presets }) => {
+const ThumbnailTile: React.FC<{ run: RunDetails; onChanged: () => void; presets: ReturnType<typeof useImagePresets> }> = ({ run, onChanged }) => {
   const reduce = !!useReducedMotion();
   const thumb = run.thumbnail;
   // Hooks before the early return: the thumbnail appears mid-run, and a changing hook count crashes React.
   const [editing, setEditing] = useState(false);
   const [prompt, setPrompt] = useState(thumb?.prompt ?? '');
-  const [preset, setPreset] = useState(thumb?.preset ?? '');
+  const [preset] = useState(thumb?.preset ?? '');
   const [busy, setBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
   if (!thumb) return null;

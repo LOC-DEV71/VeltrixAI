@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MonitorPlay as Youtube, Unlink, ExternalLink, AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
+import { MonitorPlay as Youtube, Unlink, AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../api';
 import { errorMessage } from '../utils/userMessages';
